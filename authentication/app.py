@@ -35,6 +35,9 @@ TAB_PERMISSIONS = {
 # Roles that can view patient information
 PATIENT_INFO_ACCESS = ["Doctor", "Admin", "Intern", "Nurse", "Pharmacist"]
 
+# Add this after the TAB_PERMISSIONS dictionary
+CUSTOM_TAB_PERMISSIONS = {}
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -94,12 +97,22 @@ def logout():
 @login_required
 def dashboard():
     role = session['role']
+    user = User.query.filter_by(username=session['username']).first()
     
     # Get accessible tabs for the current role
-    accessible_tabs = {
-        tab: tab in [t for t, roles in TAB_PERMISSIONS.items() if role in roles]
-        for tab in TAB_PERMISSIONS.keys()
-    }
+    custom_permissions = user.get_custom_permissions() if user else []
+    if custom_permissions:
+        # Use custom permissions if available
+        accessible_tabs = {
+            tab: tab in custom_permissions
+            for tab in TAB_PERMISSIONS.keys()
+        }
+    else:
+        # Use default role-based permissions
+        accessible_tabs = {
+            tab: tab in [t for t, roles in TAB_PERMISSIONS.items() if role in roles]
+            for tab in TAB_PERMISSIONS.keys()
+        }
     
     # Role-specific stats
     role_stats = {
@@ -249,6 +262,48 @@ def manage_users():
                          role=session['role'],
                          users=User.query.all(),
                          available_roles=AVAILABLE_ROLES)
+
+@app.route('/create_personnel', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def create_personnel():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        role = request.form.get('role')
+        name = request.form.get('name')
+        tab_permissions = request.form.getlist('tab_permissions')
+
+        if not all([username, password, role, name]):
+            flash('All fields are required.')
+            return redirect(url_for('create_personnel'))
+
+        if role not in AVAILABLE_ROLES:
+            flash('Invalid role selected.')
+            return redirect(url_for('create_personnel'))
+
+        if User.query.filter_by(username=username).first():
+            flash('Username already exists.')
+            return redirect(url_for('create_personnel'))
+
+        # Create new user with custom permissions
+        new_user = User(username=username, role=role, name=name)
+        new_user.set_password(password)
+        new_user.set_custom_permissions(tab_permissions)
+        db.session.add(new_user)
+        db.session.commit()
+        
+        flash(f'Personnel {username} has been created successfully.')
+        return redirect(url_for('dashboard'))
+
+    # Get all available tabs for permissions
+    all_tabs = list(TAB_PERMISSIONS.keys())
+    
+    return render_template('create_personnel.html',
+                         username=session['username'],
+                         role=session['role'],
+                         available_roles=AVAILABLE_ROLES,
+                         all_tabs=all_tabs)
 
 # Create database tables and add initial data
 def init_db():

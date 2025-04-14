@@ -391,6 +391,9 @@
             {% if role == 'Admin' %}
             <div class="manage-users-container" id="usersTableContainer" style="display: none;">
                 <h2>Manage Users</h2>
+                <div style="margin-bottom: 1rem;">
+                    <a href="{{ url_for('create_personnel') }}" class="btn btn-primary" style="display: inline-block;">Create New Personnel</a>
+                </div>
                 <table class="users-table">
                     <thead>
                         <tr>

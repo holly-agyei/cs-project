@@ -7,11 +7,12 @@ db = SQLAlchemy()
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128))
-    name = db.Column(db.String(100))
-    role = db.Column(db.String(20), nullable=False)
+    password_hash = db.Column(db.String(120), nullable=False)
+    role = db.Column(db.String(80), nullable=False)
+    name = db.Column(db.String(120))
     status = db.Column(db.String(20), default='active')
     last_login = db.Column(db.DateTime, default=datetime.utcnow)
+    custom_permissions = db.Column(db.String(500))  # Store tab permissions as comma-separated string
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -21,14 +22,26 @@ class User(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def set_custom_permissions(self, permissions):
+        if isinstance(permissions, list):
+            self.custom_permissions = ','.join(permissions)
+        else:
+            self.custom_permissions = permissions
+
+    def get_custom_permissions(self):
+        if self.custom_permissions:
+            return self.custom_permissions.split(',')
+        return []
+
     def to_dict(self):
         return {
             'id': self.id,
             'username': self.username,
-            'name': self.name,
             'role': self.role,
+            'name': self.name,
             'status': self.status,
-            'last_login': self.last_login.isoformat() if self.last_login else None,
+            'last_login': self.last_login.strftime('%Y-%m-%dT%H:%M:%S.%f') if self.last_login else None,
+            'custom_permissions': self.get_custom_permissions(),
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
