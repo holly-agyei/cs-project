@@ -366,9 +366,33 @@
             color: white;
             box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
         }
+
+        /* Decorative Image Styles */
+        .decorative-image {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 999;
+            opacity: 0.9;
+            transition: all 0.3s ease;
+        }
+
+        .decorative-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
+    <!-- Add the decorative image -->
+    <img src="https://media.istockphoto.com/id/1450677469/photo/shop-glasses-and-eyes-of-black-child-with-vision-healthcare-frame-check-or-choice-in-retail.jpg?s=1024x1024&w=is&k=20&c=3H7FT67nOWP1rIv-lcxnnbLCToD2UFf-OChshfM2z3A=" alt="" class="decorative-image" aria-hidden="true">
+
     <div class="navbar">
         <div>
             <h2 style="margin: 0;">Eye Clinic Management System</h2>
