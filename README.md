@@ -2,7 +2,7 @@
 
 A web-based management system for eye clinics, featuring role-based access control, patient management, and user administration.
 
-## Features
+# Features
 
 - Role-based access control (Admin, Doctor, Nurse, Intern, Receptionist, Pharmacist)
 - Patient information management
@@ -11,7 +11,7 @@ A web-based management system for eye clinics, featuring role-based access contr
 - Secure authentication
 - Responsive design
 
-## Prerequisites
+# Prerequisites
 
 - Python 3.8 or higher
 - pip (Python package manager)
@@ -58,12 +58,6 @@ flask run
 2. Access the application at `http://localhost:5000`
 
 3. Login with one of the default accounts:
-- Admin: username: `admin1`, password: `adminpass`
-- Doctor: username: `dr_smith`, password: `docpass`
-- Nurse: username: `nurse_amy`, password: `nursepass`
-- Intern: username: `intern_john`, password: `internpass`
-- Receptionist: username: `receptionist1`, password: `recpass`
-- Pharmacist: username: `pharma1`, password: `pharmapass`
 
 ## Project Structure
 
@@ -98,6 +92,14 @@ flask run
 4. Push to the branch
 5. Create a Pull Request
 
-## License
+# Contact Info of Authors
+1. Kelvin Boakye [LinkedIn](https://www.linkedin.com/in/kelvin-boakye-a8b2b6252/
+2. Holy Agyei [LinkedIn](https://www.linkedin.com/in/holy-agyei-247bab313/
+3. Elizabeth Sakyi Mensah  [LinkedIn](https://www.linkedin.com/in/elizabeth-sakyi-mensah-/
+4. Afia Pokuaa [LinkedIn](https://www.linkedin.com/in/afiapokuaa/
+5. Kelvin Oppong Acheampong  [LinkedIn](https://www.linkedin.com/in/kelvin-oppong-acheampong-936149309/
+
+
+# License
 
 This project is licensed under the MIT License - see the LICENSE file for details. 
