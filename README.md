@@ -2,7 +2,7 @@
 
 A web-based management system for eye clinics, featuring role-based access control, patient management, and user administration.
 
-## Features
+# Features
 
 - Role-based access control (Admin, Doctor, Nurse, Intern, Receptionist, Pharmacist)
 - Patient information management
@@ -11,7 +11,7 @@ A web-based management system for eye clinics, featuring role-based access contr
 - Secure authentication
 - Responsive design
 
-## Prerequisites
+# Prerequisites
 
 - Python 3.8 or higher
 - pip (Python package manager)
@@ -98,6 +98,6 @@ flask run
 4. Push to the branch
 5. Create a Pull Request
 
-## License
+# License
 
 This project is licensed under the MIT License - see the LICENSE file for details. 
