@@ -1,10 +1,10 @@
 # Eye Clinic Management System Documentation
 
-## 1. Project Overview
+# 1. Project Overview
 
 The Eye Clinic Management System is a comprehensive web application designed to streamline the operations of an eye clinic. It provides role-based access control to ensure that different staff members have appropriate access to various features based on their responsibilities. The system manages patient information, medical records, prescriptions, and administrative tasks in a secure and efficient manner.
 
-## 2. Tech Stack
+# 2. Tech Stack
 
 - **Backend**: Python 3.x
 - **Web Framework**: Flask
@@ -13,7 +13,7 @@ The Eye Clinic Management System is a comprehensive web application designed to 
 - **Version Control**: Git + GitHub
 - **Authentication**: Flask session-based authentication
 
-## 3. User Roles and Access
+# 3. User Roles and Access
 
 The system implements role-based access control with the following roles:
 
@@ -26,7 +26,7 @@ The system implements role-based access control with the following roles:
 | Receptionist | Front desk staff | Access to patient scheduling and basic information |
 | Pharmacist | Medication specialist | Access to prescription management and medication records |
 
-### Tab Access Permissions
+# Tab Access Permissions
 
 | Tab | Accessible By |
 |-----|--------------|
@@ -42,19 +42,19 @@ The system implements role-based access control with the following roles:
 | Hand Off | Doctor, Nurse, Admin |
 | Manage Users | Admin only |
 
-## 4. System Features
+# 4. System Features
 
-### Authentication
+# Authentication
 - Secure login system with password hashing
 - Session management for authenticated users
 - Role-based access control
 
-### Patient Management
+# Patient Management
 - Patient selection interface
 - Patient information sidebar with key details
 - Comprehensive patient records
 
-### Clinical Features
+# Clinical Features
 - **HPI**: Record and view patient's history of present illness
 - **CC**: Document chief complaints
 - **ROS**: Comprehensive review of systems
@@ -72,14 +72,14 @@ The system implements role-based access control with the following roles:
 - Assign custom tab permissions to users
 - View system statistics and usage
 
-## 5. How to Run the App
+# 5. How to Run the App
 
-### Prerequisites
+# Prerequisites
 - Python 3.x
 - pip (Python package manager)
 - Git
 
-### Setup Instructions
+# Setup Instructions
 
 1. **Clone the repository**
    ```bash
@@ -108,7 +108,7 @@ The system implements role-based access control with the following roles:
 
 ## 6. Contributing
 
-### Development Workflow
+# Development Workflow
 
 1. **Fork the repository** on GitHub
 2. **Create a feature branch**
