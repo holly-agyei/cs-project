@@ -92,6 +92,14 @@ flask run
 4. Push to the branch
 5. Create a Pull Request
 
+# Contact Info of Authors
+1. Kelvin Boakye [LinkedIn](https://www.linkedin.com/in/kelvin-boakye-a8b2b6252/
+2. Holy Agyei [LinkedIn](https://www.linkedin.com/in/holy-agyei-247bab313/
+3. Elizabeth Sakyi Mensah  [LinkedIn](https://www.linkedin.com/in/elizabeth-sakyi-mensah-/
+4. Afia Pokuaa [LinkedIn](https://www.linkedin.com/in/afiapokuaa/
+5. Kelvin Oppong Acheampong  [LinkedIn](https://www.linkedin.com/in/kelvin-oppong-acheampong-936149309/
+
+
 # License
 
 This project is licensed under the MIT License - see the LICENSE file for details. 
