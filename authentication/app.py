@@ -1,18 +1,34 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from functools import wraps
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from models import db, User, Patient
 from flask_migrate import Migrate
+from flask_mail import Mail, Message
+import secrets
+from werkzeug.security import generate_password_hash
+from dotenv import load_dotenv
+
+load_dotenv()  # Load environment variables from .env file
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///clinic.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Email configuration
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() == 'true'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+
 # Initialize database
 db.init_app(app)
 migrate = Migrate(app, db)
+
+mail = Mail(app)
 
 # Available roles for new users
 AVAILABLE_ROLES = ["Doctor", "Nurse", "Intern", "Receptionist", "Pharmacist", "Admin"]
@@ -29,7 +45,8 @@ TAB_PERMISSIONS = {
     "Photos/Videos": ["Doctor", "Admin"],
     "E-prescribe": ["Doctor", "Pharmacist", "Admin"],
     "Hand Off": ["Doctor", "Nurse", "Admin"],
-    "Manage Users": ["Admin"]
+    "Manage Users": ["Admin"],
+    "Settings": ["Doctor", "Nurse", "Admin", "Intern", "Receptionist", "Pharmacist"]  # Available to all roles
 }
 
 # Roles that can view patient information
@@ -37,6 +54,14 @@ PATIENT_INFO_ACCESS = ["Doctor", "Admin", "Intern", "Nurse", "Pharmacist"]
 
 # Add this after the TAB_PERMISSIONS dictionary
 CUSTOM_TAB_PERMISSIONS = {}
+
+# Add this to your database model
+class PasswordReset(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    token = db.Column(db.String(100), unique=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    expires_at = db.Column(db.DateTime, nullable=False)
 
 def login_required(f):
     @wraps(f)
@@ -204,9 +229,10 @@ def edit_user(user_id):
         name = request.form.get('name')
         role = request.form.get('role')
         status = request.form.get('status')
+        email = request.form.get('email')
         password = request.form.get('password')
         
-        if not all([name, role, status]):
+        if not all([name, role, status, email]):
             flash('All fields are required.')
             return redirect(url_for('edit_user', user_id=user_id))
         
@@ -214,9 +240,15 @@ def edit_user(user_id):
             flash('Invalid role selected.')
             return redirect(url_for('edit_user', user_id=user_id))
         
+        # Check if email is being changed and if it's already in use
+        if email != user.email and User.query.filter_by(email=email).first():
+            flash('Email already exists.')
+            return redirect(url_for('edit_user', user_id=user_id))
+        
         user.name = name
         user.role = role
         user.status = status
+        user.email = email
         
         if password:
             user.set_password(password)
@@ -236,8 +268,9 @@ def manage_users():
         password = request.form.get('password')
         role = request.form.get('role')
         name = request.form.get('name')
+        email = request.form.get('email')
 
-        if not all([username, password, role, name]):
+        if not all([username, password, role, name, email]):
             flash('All fields are required.')
             return redirect(url_for('manage_users'))
 
@@ -249,7 +282,11 @@ def manage_users():
             flash('Username already exists.')
             return redirect(url_for('manage_users'))
 
-        new_user = User(username=username, role=role, name=name)
+        if User.query.filter_by(email=email).first():
+            flash('Email already exists.')
+            return redirect(url_for('manage_users'))
+
+        new_user = User(username=username, role=role, name=name, email=email)
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()
@@ -272,9 +309,10 @@ def create_personnel():
         password = request.form.get('password')
         role = request.form.get('role')
         name = request.form.get('name')
+        email = request.form.get('email')
         tab_permissions = request.form.getlist('tab_permissions')
 
-        if not all([username, password, role, name]):
+        if not all([username, password, role, name, email]):
             flash('All fields are required.')
             return redirect(url_for('create_personnel'))
 
@@ -286,8 +324,12 @@ def create_personnel():
             flash('Username already exists.')
             return redirect(url_for('create_personnel'))
 
+        if User.query.filter_by(email=email).first():
+            flash('Email already exists.')
+            return redirect(url_for('create_personnel'))
+
         # Create new user with custom permissions
-        new_user = User(username=username, role=role, name=name)
+        new_user = User(username=username, role=role, name=name, email=email)
         new_user.set_password(password)
         new_user.set_custom_permissions(tab_permissions)
         db.session.add(new_user)
@@ -305,6 +347,137 @@ def create_personnel():
                          available_roles=AVAILABLE_ROLES,
                          all_tabs=all_tabs)
 
+@app.route('/change_password', methods=['POST'])
+@login_required
+def change_password():
+    data = request.get_json()
+    current_password = data.get('current_password')
+    new_password = data.get('new_password')
+    
+    if not current_password or not new_password:
+        return jsonify({'status': 'error', 'message': 'Missing required fields'}), 400
+    
+    user = User.query.filter_by(username=session['username']).first()
+    
+    if not user or not user.check_password(current_password):
+        return jsonify({'status': 'error', 'message': 'Current password is incorrect'}), 401
+    
+    # Password requirements validation
+    if len(new_password) < 8:
+        return jsonify({'status': 'error', 'message': 'Password must be at least 8 characters long'}), 400
+    
+    if not any(c.isupper() for c in new_password):
+        return jsonify({'status': 'error', 'message': 'Password must contain at least one uppercase letter'}), 400
+    
+    if not any(c.isdigit() for c in new_password):
+        return jsonify({'status': 'error', 'message': 'Password must contain at least one number'}), 400
+    
+    if not any(c in '@$!%*?&' for c in new_password):
+        return jsonify({'status': 'error', 'message': 'Password must contain at least one special character (@$!%*?&)'}), 400
+    
+    user.set_password(new_password)
+    db.session.commit()
+    
+    return jsonify({'status': 'success', 'message': 'Password changed successfully'})
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        user = User.query.filter_by(email=email).first()
+        
+        if user:
+            # Generate a unique token
+            token = secrets.token_urlsafe(32)
+            
+            # Delete any existing reset tokens for this user
+            PasswordReset.query.filter_by(user_id=user.id).delete()
+            
+            # Create new reset token
+            reset_token = PasswordReset(
+                user_id=user.id,
+                token=token,
+                expires_at=datetime.utcnow() + timedelta(hours=1)
+            )
+            db.session.add(reset_token)
+            db.session.commit()
+            
+            # Create reset password link
+            reset_url = url_for('reset_password', token=token, _external=True)
+            
+            # Send email
+            msg = Message('Password Reset Request',
+                        recipients=[user.email])
+            msg.body = f'''To reset your password, visit the following link:
+{reset_url}
+
+If you did not make this request, please ignore this email.
+
+This link will expire in 1 hour.
+'''
+            mail.send(msg)
+            
+            flash('Password reset instructions have been sent to your email.', 'success')
+            return redirect(url_for('login'))
+        
+        flash('No account found with that email address.', 'error')
+        return redirect(url_for('forgot_password'))
+    
+    return render_template('forgot_password.html')
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    # First check if the token exists and is valid
+    reset_token = PasswordReset.query.filter_by(token=token).first()
+    
+    if not reset_token or reset_token.expires_at < datetime.utcnow():
+        flash('The password reset link is invalid or has expired.', 'error')
+        return redirect(url_for('forgot_password'))
+    
+    if request.method == 'POST':
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        
+        if new_password != confirm_password:
+            flash('Passwords do not match.', 'error')
+            return render_template('reset_password.html', token=token)
+        
+        # Password validation
+        if not validate_password(new_password):
+            flash('Password does not meet requirements.', 'error')
+            return render_template('reset_password.html', token=token)
+        
+        # Update the user's password
+        user = User.query.get(reset_token.user_id)
+        user.set_password(new_password)
+        
+        # Delete the used token
+        db.session.delete(reset_token)
+        db.session.commit()
+        
+        flash('Your password has been successfully reset. You can now login with your new password.', 'success')
+        return redirect(url_for('login'))
+    
+    return render_template('reset_password.html', token=token)
+
+def validate_password(password):
+    """
+    Validate that the password meets the requirements:
+    - At least 8 characters long
+    - Contains at least one uppercase letter
+    - Contains at least one number
+    - Contains at least one special character
+    """
+    if len(password) < 8:
+        return False
+    if not any(c.isupper() for c in password):
+        return False
+    if not any(c.isdigit() for c in password):
+        return False
+    if not any(c in '!@#$%^&*(),.?":{}|<>' for c in password):
+        return False
+    return True
+
 # Create database tables and add initial data
 def init_db():
     with app.app_context():
@@ -313,19 +486,20 @@ def init_db():
         # Add initial users if none exist
         if User.query.count() == 0:
             initial_users = [
-                {"username": "admin1", "password": "adminpass", "role": "Admin", "name": "Admin User"},
-                {"username": "dr_smith", "password": "docpass", "role": "Doctor", "name": "Dr. Smith"},
-                {"username": "nurse_amy", "password": "nursepass", "role": "Nurse", "name": "Nurse Amy"},
-                {"username": "intern_john", "password": "internpass", "role": "Intern", "name": "John Intern"},
-                {"username": "receptionist1", "password": "recpass", "role": "Receptionist", "name": "Receptionist"},
-                {"username": "pharma1", "password": "pharmapass", "role": "Pharmacist", "name": "Pharmacist"}
+                {"username": "admin1", "password": "adminpass", "role": "Admin", "name": "Admin User", "email": "admin1@eyeclinic.com"},
+                {"username": "dr_smith", "password": "docpass", "role": "Doctor", "name": "Dr. Smith", "email": "dr.smith@eyeclinic.com"},
+                {"username": "nurse_amy", "password": "nursepass", "role": "Nurse", "name": "Nurse Amy", "email": "nurse.amy@eyeclinic.com"},
+                {"username": "intern_john", "password": "internpass", "role": "Intern", "name": "John Intern", "email": "intern.john@eyeclinic.com"},
+                {"username": "receptionist1", "password": "recpass", "role": "Receptionist", "name": "Receptionist", "email": "receptionist1@eyeclinic.com"},
+                {"username": "pharma1", "password": "pharmapass", "role": "Pharmacist", "name": "Pharmacist", "email": "pharma1@eyeclinic.com"}
             ]
             
             for user_data in initial_users:
                 user = User(
                     username=user_data["username"],
                     role=user_data["role"],
-                    name=user_data["name"]
+                    name=user_data["name"],
+                    email=user_data["email"]
                 )
                 user.set_password(user_data["password"])
                 db.session.add(user)

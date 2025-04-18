@@ -6,15 +6,43 @@
     <title>Eye Clinic Dashboard - {{ role }}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        :root {
+            --primary-color: #4a6fa5;
+            --primary-dark: #3a5a8c;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --border-color: #e9ecef;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            --gradient-success: linear-gradient(135deg, #28a745, #218838);
+            --gradient-info: linear-gradient(135deg, #17a2b8, #138496);
+            --card-shadow: 0 4px 15px var(--shadow-color);
+            --hover-transform: translateY(-5px);
+        }
+        
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            background-color: #f5f5f5;
         }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            color: var(--dark-color);
+            min-height: 100vh;
+        }
+        
         .navbar {
-            background-color: #333;
-            padding: 1rem;
+            background: var(--gradient-primary);
+            padding: 1rem 2rem;
             color: white;
             display: flex;
             justify-content: space-between;
@@ -24,386 +52,667 @@
             left: 0;
             right: 0;
             z-index: 1000;
+            box-shadow: 0 2px 10px var(--shadow-color);
+            backdrop-filter: blur(10px);
         }
+        
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .navbar-brand i {
+            font-size: 1.5rem;
+        }
+        
         .navbar a {
             color: white;
             text-decoration: none;
+            transition: opacity 0.3s ease;
         }
+        
+        .navbar a:hover {
+            opacity: 0.8;
+        }
+        
         .main-content {
             display: flex;
-            margin-top: 4rem;
-            min-height: calc(100vh - 4rem);
+            margin-top: 4.5rem;
+            min-height: calc(100vh - 4.5rem);
         }
+        
         .patient-sidebar {
-            width: 300px;
-            background-color: white;
+            width: 320px;
+            background-color: rgba(255, 255, 255, 0.95);
             padding: 1.5rem;
-            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--card-shadow);
             position: fixed;
-            top: 4rem;
+            top: 4.5rem;
             bottom: 0;
             overflow-y: auto;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
         }
+        
         .dashboard-container {
             flex: 1;
-            margin-left: {{ '300px' if can_view_patient_info else '0' }};
+            margin-left: {{ '320px' if can_view_patient_info else '0' }};
             padding: 2rem;
+            transition: margin-left 0.3s ease;
         }
+        
         .patient-info {
             margin-bottom: 2rem;
         }
+        
         .patient-info h2 {
-            color: #2c3e50;
+            color: var(--primary-color);
             margin-bottom: 1.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border-color);
+            font-weight: 600;
         }
-        .info-group {
-            margin-bottom: 1rem;
+        
+        .patient-selector select {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
             padding: 0.75rem;
-            background-color: #f8f9fa;
-            border-radius: 4px;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px var(--shadow-color);
         }
+        
+        .patient-selector select:hover {
+            transform: var(--hover-transform);
+            box-shadow: 0 8px 15px var(--shadow-color);
+        }
+        
+        .patient-selector select option {
+            background: white;
+            color: var(--dark-color);
+        }
+        
+        .info-group {
+            background: white;
+            padding: 1.2rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 5px var(--shadow-color);
+        }
+        
+        .info-group:hover {
+            transform: var(--hover-transform);
+            box-shadow: 0 8px 15px var(--shadow-color);
+            border-color: var(--primary-color);
+        }
+        
         .info-label {
             font-size: 0.85rem;
-            color: #6c757d;
-            margin-bottom: 0.25rem;
-        }
-        .info-value {
-            font-size: 1rem;
-            color: #2c3e50;
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
             font-weight: 500;
         }
+        
+        .info-value {
+            font-size: 1.1rem;
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+        
         .diagnosis {
-            background-color: #fff3cd;
-            border: 1px solid #ffeeba;
+            background: linear-gradient(135deg, #fff3cd, #ffeeba);
+            border: none;
             color: #856404;
-            padding: 0.75rem;
-            border-radius: 4px;
+            padding: 1.2rem;
+            border-radius: 12px;
             margin-top: 1rem;
+            font-weight: 500;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
         }
+        
+        .diagnosis:hover {
+            transform: var(--hover-transform);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
+        }
+        
         .welcome-card {
-            background-color: white;
+            background: white;
             padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
             margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
         }
+        
+        .welcome-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--gradient-primary);
+        }
+        
+        .welcome-card:hover {
+            transform: var(--hover-transform);
+            box-shadow: 0 8px 20px var(--shadow-color);
+        }
+        
         .role-badge {
             display: inline-block;
             padding: 0.5rem 1rem;
             border-radius: 20px;
             font-size: 0.9rem;
-            font-weight: bold;
+            font-weight: 600;
             margin-top: 1rem;
+            box-shadow: 0 2px 4px var(--shadow-color);
         }
-        .role-Admin { background-color: #dc3545; color: white; }
-        .role-Doctor { background-color: #007bff; color: white; }
-        .role-Nurse { background-color: #28a745; color: white; }
-        .role-Intern { background-color: #ffc107; color: black; }
-        .role-Receptionist { background-color: #6f42c1; color: white; }
-        .role-Pharmacist { background-color: #fd7e14; color: white; }
+        
+        .role-Admin { background: linear-gradient(135deg, #dc3545, #c82333); color: white; }
+        .role-Doctor { background: linear-gradient(135deg, #28a745, #218838); color: white; }
+        .role-Nurse { background: linear-gradient(135deg, #17a2b8, #138496); color: white; }
+        .role-Intern { background: linear-gradient(135deg, #ffc107, #e0a800); color: var(--dark-color); }
+        .role-Receptionist { background: linear-gradient(135deg, #6c757d, #5a6268); color: white; }
+        .role-Pharmacist { background: linear-gradient(135deg, #6610f2, #560bd0); color: white; }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.8rem;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--gradient-success);
+        }
+        
+        .stat-card:hover {
+            transform: var(--hover-transform);
+            box-shadow: 0 8px 20px var(--shadow-color);
+        }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover .stat-icon {
+            transform: scale(1.1);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            color: var(--secondary-color);
+        }
         
         .tabs-container {
-            background-color: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
-        }
-        .tabs-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-        .tab-button {
-            padding: 1rem;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-            width: 100%;
-        }
-        .tab-button.enabled {
-            background-color: #007bff;
-            color: white;
-        }
-        .tab-button.enabled:hover {
-            background-color: #0056b3;
-        }
-        .tab-button.disabled {
-            background-color: #e9ecef;
-            color: #6c757d;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-        .stats-container {
-            background-color: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-        }
-        .stat-card {
-            background-color: #f8f9fa;
-            padding: 1rem;
-            border-radius: 4px;
-            text-align: center;
-        }
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 0.5rem 0;
-            color: #007bff;
-        }
-        .stat-label {
-            font-size: 0.9rem;
-            color: #6c757d;
-            text-transform: capitalize;
-        }
-        .flash-messages {
-            margin-bottom: 1rem;
-        }
-        .flash-message {
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            border-radius: 4px;
-            background-color: #cce5ff;
-            color: #004085;
-            border: 1px solid #b8daff;
-        }
-        .patient-selector {
-            background-color: white;
-            padding: 1rem;
-            border-radius: 4px;
-            margin-bottom: 1rem;
-        }
-        
-        .patient-select {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-            color: #2c3e50;
-            cursor: pointer;
-        }
-        
-        .patient-select option {
-            padding: 0.5rem;
-        }
-        
-        .patient-select:focus {
-            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
-        }
-        
-        .role-badge.role-admin {
-            background-color: #dc3545;
-            color: white;
-        }
-        
-        /* Enhanced Manage Users Styles */
-        .manage-users-container {
             background: white;
+            padding: 1.5rem;
             border-radius: 12px;
-            padding: 30px;
-            margin: 20px 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+        
+        .tab-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(74, 111, 165, 0.1);
+        }
+        
+        .tab-button {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            background: white;
+            color: var(--dark-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 5px var(--shadow-color);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tab-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-primary);
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .tab-button:hover::before,
+        .tab-button.active::before {
+            transform: translateY(0);
+        }
+        
+        .tab-button i {
+            font-size: 1.3rem;
             transition: all 0.3s ease;
         }
-
-        .manage-users-container:hover {
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-            transform: translateY(-2px);
+        
+        .tab-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px var(--shadow-color);
+            background: white;
+            color: var(--primary-color);
         }
-
-        .manage-users-header {
+        
+        .tab-button:hover i {
+            transform: scale(1.2) rotate(10deg);
+            color: var(--primary-color);
+        }
+        
+        .tab-button.active {
+            background: white;
+            color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px var(--shadow-color);
+        }
+        
+        .tab-button.active i {
+            transform: scale(1.2);
+            color: var(--primary-color);
+        }
+        
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            height: 0;
+            overflow: hidden;
+        }
+        
+        .settings-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .settings-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .settings-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--gradient-primary);
+        }
+        
+        .settings-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
         }
-
-        .manage-users-title {
-            font-size: 24px;
-            color: #2c3e50;
-            font-weight: 600;
+        
+        .settings-icon {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            background: var(--light-color);
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .settings-card:hover .settings-icon {
+            transform: rotate(15deg);
+        }
+        
+        .settings-title {
+            font-size: 1.25rem;
+            color: var(--dark-color);
             margin: 0;
         }
-
-        .create-personnel-btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #007bff, #0056b3);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
             font-weight: 500;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
             transition: all 0.3s ease;
+            background: var(--light-color);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.1);
+        }
+        
+        .password-field {
+            position: relative;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
             border: none;
-            box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+            color: var(--secondary-color);
+            cursor: pointer;
+            padding: 0.25rem;
+            transition: all 0.3s ease;
         }
-
-        .create-personnel-btn:hover {
+        
+        .password-toggle:hover {
+            color: var(--primary-color);
+        }
+        
+        .btn-change-password {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 5px var(--shadow-color);
+        }
+        
+        .btn-change-password:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
-            background: linear-gradient(135deg, #0056b3, #004094);
+            box-shadow: 0 4px 10px var(--shadow-color);
         }
-
-        .create-personnel-btn:active {
+        
+        .password-requirements {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--light-color);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+        }
+        
+        .requirement-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .requirement-item i {
+            color: var(--success-color);
+        }
+        
+        .tab-content.active {
+            display: block;
+            opacity: 1;
             transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+            height: auto;
+            animation: slideDown 0.3s ease forwards;
         }
-
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .manage-users-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            margin-top: 2rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .create-personnel-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 5px var(--shadow-color);
+        }
+        
+        .create-personnel-btn:hover {
+            transform: var(--hover-transform);
+            box-shadow: 0 8px 15px var(--shadow-color);
+        }
+        
         .users-table {
             width: 100%;
             border-collapse: separate;
-            border-spacing: 0;
-            margin-top: 20px;
+            border-spacing: 0 0.5rem;
+            margin-top: 1.5rem;
         }
-
+        
         .users-table th {
-            background-color: #f8f9fa;
+            background: var(--light-color);
+            padding: 1rem;
             font-weight: 600;
-            color: #495057;
-            padding: 15px;
-            text-align: left;
-            border-bottom: 2px solid #dee2e6;
+            color: var(--dark-color);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
         }
-
+        
         .users-table td {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            transition: all 0.2s ease;
+            padding: 1rem;
+            background: white;
+            transition: all 0.3s ease;
         }
-
+        
         .users-table tr:hover td {
-            background-color: #f8f9fa;
+            background: var(--light-color);
+            transform: scale(1.01);
         }
-
-        .user-actions {
-            display: flex;
-            gap: 8px;
+        
+        .users-table tr td:first-child {
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
         }
-
-        .user-action-btn {
-            padding: 8px 16px;
+        
+        .users-table tr td:last-child {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+        
+        .action-btn {
+            padding: 0.5rem 1rem;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
             transition: all 0.3s ease;
-            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0 0.25rem;
         }
-
+        
         .edit-btn {
-            background-color: #28a745;
+            background: var(--gradient-info);
             color: white;
         }
-
-        .edit-btn:hover {
-            background-color: #218838;
-            transform: translateY(-1px);
-        }
-
+        
         .delete-btn {
-            background-color: #dc3545;
+            background: linear-gradient(135deg, var(--danger-color), #c82333);
             color: white;
         }
-
-        .delete-btn:hover {
-            background-color: #c82333;
-            transform: translateY(-1px);
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow-color);
         }
-
-        .role-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .role-badge:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: all 0.3s ease;
-        }
-
-        .status-active {
-            background-color: #28a745;
-            color: white;
-            box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
-        }
-
-        .status-inactive {
-            background-color: #dc3545;
-            color: white;
-            box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .patient-sidebar {
+                position: relative;
+                width: 100%;
+                top: 0;
+                margin-bottom: 1rem;
+            }
+            
+            .dashboard-container {
+                margin-left: 0;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <div>
-            <h2 style="margin: 0;">Eye Clinic Management System</h2>
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <i class="fas fa-eye"></i>
+            <span>Eye Clinic Management System</span>
         </div>
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <span>{{ username }}</span>
-            <a href="{{ url_for('logout') }}">Logout</a>
+        <div class="navbar-right">
+            <span>Welcome, {{ username }}</span>
+            <a href="#" class="nav-button" onclick="showTab('Settings')">
+                <i class="fas fa-cog"></i>
+                Settings
+            </a>
+            <a href="{{ url_for('logout') }}" class="nav-button">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </a>
         </div>
-    </div>
+    </nav>
 
     <div class="main-content">
-        {% if can_view_patient_info and patient_data %}
+        {% if can_view_patient_info %}
         <div class="patient-sidebar">
-            <div class="patient-selector">
-                <select class="patient-select" onchange="selectPatient(this.value)">
-                    {% for patient in all_patients %}
-                        <option value="{{ patient.id }}" {% if patient.id == patient_data.id %}selected{% endif %}>
-                            {{ patient.name }} ({{ patient.id }})
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
             <div class="patient-info">
-                <h2>Current Patient</h2>
-                <div class="info-group">
-                    <div class="info-label">Patient Name</div>
-                    <div class="info-value">{{ patient_data.name }}</div>
+                <h2>Patient Information</h2>
+                <div class="patient-selector" style="margin-bottom: 1.5rem;">
+                    <select id="patient-select" class="form-control" onchange="selectPatient(this.value)" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; background-color: white; font-size: 1rem;">
+                        {% for patient in all_patients %}
+                            <option value="{{ patient.id }}" {% if patient.id == patient_data.id %}selected{% endif %}>
+                                {{ patient.name }} ({{ patient.id }})
+                            </option>
+                        {% endfor %}
+                    </select>
                 </div>
+                {% if patient_data %}
                 <div class="info-group">
                     <div class="info-label">Patient ID</div>
                     <div class="info-value">{{ patient_data.id }}</div>
                 </div>
                 <div class="info-group">
+                    <div class="info-label">Name</div>
+                    <div class="info-value">{{ patient_data.name }}</div>
+                </div>
+                <div class="info-group">
                     <div class="info-label">Age</div>
-                    <div class="info-value">{{ patient_data.age }} years</div>
+                    <div class="info-value">{{ patient_data.age }}</div>
                 </div>
                 <div class="info-group">
                     <div class="info-label">Gender</div>
@@ -413,10 +722,13 @@
                     <div class="info-label">Appointment Date</div>
                     <div class="info-value">{{ patient_data.appointment_date }}</div>
                 </div>
-                {% if patient_data.diagnosis %}
                 <div class="diagnosis">
-                    <div class="info-label">Current Diagnosis</div>
+                    <div class="info-label">Diagnosis</div>
                     <div class="info-value">{{ patient_data.diagnosis }}</div>
+                </div>
+                {% else %}
+                <div class="info-group">
+                    <div class="info-value">No patient selected</div>
                 </div>
                 {% endif %}
             </div>
@@ -424,62 +736,202 @@
         {% endif %}
 
         <div class="dashboard-container">
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <div class="flash-messages">
-                        {% for message in messages %}
-                            <div class="flash-message">{{ message }}</div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            {% endwith %}
-
             <div class="welcome-card">
                 <h1>Welcome, {{ username }}!</h1>
-                <p>You are logged in as:</p>
-                <div class="role-badge role-{{ role }}">{{ role }}</div>
+                <p>You are logged in as a <span class="role-badge role-{{ role }}">{{ role }}</span></p>
             </div>
 
+            {% if role == 'Admin' %}
+            <div class="stats-container">
+                <div class="stat-card">
+                    <i class="fas fa-users stat-icon"></i>
+                    <div class="stat-value">{{ stats.total_patients }}</div>
+                    <div class="stat-label">Total Patients</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-clipboard-check stat-icon"></i>
+                    <div class="stat-value">{{ stats.active_cases }}</div>
+                    <div class="stat-label">Active Cases</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-clock stat-icon"></i>
+                    <div class="stat-value">{{ stats.pending_reviews }}</div>
+                    <div class="stat-label">Pending Reviews</div>
+                </div>
+            </div>
+            {% endif %}
+
             <div class="tabs-container">
-                <h2>Patient Management Tabs</h2>
-                <div class="tabs-grid">
-                    {% for tab, is_accessible in tabs.items() %}
-                        {% if tab != 'Manage Users' %}
-                            <button 
-                                class="tab-button {{ 'enabled' if is_accessible else 'disabled' }}"
-                                {% if not is_accessible %}disabled{% endif %}
-                                onclick="{% if is_accessible %}alert('Opening ' + '{{ tab }}' + ' tab...'){% endif %}"
-                            >
-                                {{ tab }}
-                            </button>
+                <div class="tab-buttons">
+                    {% for tab, has_access in tabs.items() %}
+                        {% if has_access and tab != 'Settings' %}
+                        <button class="tab-button" onclick="showTab('{{ tab }}')">
+                            {% if tab == 'Manage Users' %}
+                                <i class="fas fa-users"></i>
+                            {% elif tab == 'HPI' %}
+                                <i class="fas fa-file-medical"></i>
+                            {% elif tab == 'CC' %}
+                                <i class="fas fa-comment-medical"></i>
+                            {% elif tab == 'ROS' %}
+                                <i class="fas fa-clipboard-list"></i>
+                            {% elif tab == 'PMH' %}
+                                <i class="fas fa-history"></i>
+                            {% elif tab == 'P/FH' %}
+                                <i class="fas fa-users"></i>
+                            {% elif tab == 'Vision' %}
+                                <i class="fas fa-eye"></i>
+                            {% elif tab == 'Exam' %}
+                                <i class="fas fa-stethoscope"></i>
+                            {% elif tab == 'Photos/Videos' %}
+                                <i class="fas fa-camera"></i>
+                            {% elif tab == 'E-prescribe' %}
+                                <i class="fas fa-prescription"></i>
+                            {% elif tab == 'Hand Off' %}
+                                <i class="fas fa-exchange-alt"></i>
+                            {% endif %}
+                            {{ tab }}
+                        </button>
                         {% endif %}
                     {% endfor %}
-                    {% if role == 'Admin' %}
-                        <button 
-                            class="tab-button enabled"
-                            onclick="toggleUsersTable()"
-                        >
-                            Manage Users
-                        </button>
-                    {% endif %}
+                </div>
+
+                <div id="Settings" class="tab-content">
+                    <div class="settings-container">
+                        <div class="settings-card">
+                            <div class="settings-header">
+                                <div class="settings-icon">
+                                    <i class="fas fa-key"></i>
+                                </div>
+                                <h3 class="settings-title">Change Password</h3>
+                            </div>
+                            <form id="changePasswordForm" onsubmit="return changePassword(event)">
+                                <div class="form-group">
+                                    <label class="form-label" for="currentPassword">Current Password</label>
+                                    <div class="password-field">
+                                        <input type="password" id="currentPassword" class="form-input" required>
+                                        <button type="button" class="password-toggle" onclick="togglePassword('currentPassword')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="newPassword">New Password</label>
+                                    <div class="password-field">
+                                        <input type="password" id="newPassword" class="form-input" required>
+                                        <button type="button" class="password-toggle" onclick="togglePassword('newPassword')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="confirmPassword">Confirm New Password</label>
+                                    <div class="password-field">
+                                        <input type="password" id="confirmPassword" class="form-input" required>
+                                        <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="password-requirements">
+                                    <div class="requirement-item">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>At least 8 characters long</span>
+                                    </div>
+                                    <div class="requirement-item">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Contains at least one uppercase letter</span>
+                                    </div>
+                                    <div class="requirement-item">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Contains at least one number</span>
+                                    </div>
+                                    <div class="requirement-item">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Contains at least one special character</span>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-change-password">
+                                    <i class="fas fa-save"></i>
+                                    Change Password
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="HPI" class="tab-content">
+                    <div class="settings-card">
+                        <div class="settings-header">
+                            <div class="settings-icon">
+                                <i class="fas fa-file-medical"></i>
+                            </div>
+                            <h3 class="settings-title">History of Present Illness</h3>
+                        </div>
+                        <p>Record and view the patient's current medical condition and symptoms.</p>
+                    </div>
+                </div>
+
+                <div id="CC" class="tab-content">
+                    <div class="settings-card">
+                        <div class="settings-header">
+                            <div class="settings-icon">
+                                <i class="fas fa-comment-medical"></i>
+                            </div>
+                            <h3 class="settings-title">Chief Complaint</h3>
+                        </div>
+                        <p>Document the patient's primary reason for seeking medical attention.</p>
+                    </div>
+                </div>
+
+                <div id="ROS" class="tab-content">
+                    <div class="settings-card">
+                        <div class="settings-header">
+                            <div class="settings-icon">
+                                <i class="fas fa-clipboard-list"></i>
+                            </div>
+                            <h3 class="settings-title">Review of Systems</h3>
+                        </div>
+                        <p>Systematic review of the patient's health status across different body systems.</p>
+                    </div>
+                </div>
+
+                <div id="Vision" class="tab-content">
+                    <div class="settings-card">
+                        <div class="settings-header">
+                            <div class="settings-icon">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <h3 class="settings-title">Vision Assessment</h3>
+                        </div>
+                        <p>Evaluate and record patient's visual acuity and eye health status.</p>
+                    </div>
+                </div>
+
+                <div id="P/FH" class="tab-content">
+                    <div class="settings-card">
+                        <div class="settings-header">
+                            <div class="settings-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h3 class="settings-title">Past/Family History</h3>
+                        </div>
+                        <p>Review and document patient's medical history and relevant family medical background.</p>
+                    </div>
                 </div>
             </div>
 
             {% if role == 'Admin' %}
-            <div class="manage-users-container" id="usersTableContainer" style="display: none;">
-                <div class="manage-users-header">
-                    <h2 class="manage-users-title">Manage Users</h2>
-                    <a href="{{ url_for('create_personnel') }}" class="create-personnel-btn">
-                        <i class="fas fa-plus"></i> Create New Personnel
-                    </a>
-                </div>
+            <div class="manage-users-container">
+                <h2>Manage Users</h2>
+                <a href="{{ url_for('create_personnel') }}" class="create-personnel-btn">
+                    <i class="fas fa-user-plus"></i> Create New Personnel
+                </a>
                 <table class="users-table">
                     <thead>
                         <tr>
                             <th>Username</th>
                             <th>Name</th>
                             <th>Role</th>
-                            <th>Last Login</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -489,14 +941,15 @@
                         <tr>
                             <td>{{ user.username }}</td>
                             <td>{{ user.name }}</td>
-                            <td><div class="role-badge role-{{ user.role }}">{{ user.role }}</div></td>
-                            <td>{{ user.last_login }}</td>
-                            <td><span class="status-badge status-{{ user.status }}">{{ user.status }}</span></td>
+                            <td><span class="role-badge role-{{ user.role }}">{{ user.role }}</span></td>
+                            <td>{{ user.status }}</td>
                             <td>
-                                <div class="user-actions">
-                                    <a href="{{ url_for('edit_user', user_id=user.id) }}" class="user-action-btn edit-btn">Edit</a>
-                                    <button class="user-action-btn delete-btn" onclick="deleteUser('{{ user.id }}')">Delete</button>
-                                </div>
+                                <button class="action-btn edit-btn" onclick="editUser({{ user.id }})">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="action-btn delete-btn" onclick="deleteUser({{ user.id }})">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -504,69 +957,150 @@
                 </table>
             </div>
             {% endif %}
-
-            <div class="stats-container">
-                <h2>Your Statistics</h2>
-                <div class="stats-grid">
-                    {% for label, value in stats.items() %}
-                        <div class="stat-card">
-                            <div class="stat-value">{{ value }}</div>
-                            <div class="stat-label">{{ label | replace('_', ' ') }}</div>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
         </div>
     </div>
 
     <script>
-        function selectPatient(patientId) {
-            fetch('/select_patient/' + patientId)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        window.location.reload();
-                    } else {
-                        alert('Error switching patient');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error switching patient');
-                });
-        }
-
-        function toggleUsersTable() {
-            const usersTable = document.getElementById('usersTableContainer');
-            if (usersTable.style.display === 'none') {
-                usersTable.style.display = 'block';
-            } else {
-                usersTable.style.display = 'none';
+        function showTab(tabName) {
+            // Hide all tab contents with animation
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                if (tab.classList.contains('active')) {
+                    tab.style.animation = 'none';
+                    tab.offsetHeight; // Trigger reflow
+                    tab.style.animation = null;
+                }
+                tab.classList.remove('active');
+            });
+            
+            // Deactivate all tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show selected tab content with animation
+            const selectedTab = document.getElementById(tabName);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+            
+            // Activate selected tab button
+            const selectedButton = event.target;
+            if (selectedButton) {
+                selectedButton.classList.add('active');
             }
         }
-
+        
+        // Don't show any tab by default
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hide all tab contents initially
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Deactivate all tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+        });
+        
         function editUser(userId) {
-            window.location.href = '/admin/users/' + userId + '/edit';
+            // Implement edit user functionality
+            window.location.href = `/admin/users/${userId}/edit`;
         }
-
+        
         function deleteUser(userId) {
             if (confirm('Are you sure you want to delete this user?')) {
-                fetch('/admin/users/' + userId + '/delete', {
+                fetch(`/admin/users/${userId}/delete`, {
                     method: 'DELETE',
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        window.location.reload();
+                        location.reload();
                     } else {
-                        alert('Error deleting user: ' + data.message);
+                        alert(data.message);
+                    }
+                });
+            }
+        }
+
+        function selectPatient(patientId) {
+            fetch(`/select_patient/${patientId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        location.reload();
+                    } else {
+                        alert(data.message);
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Error deleting user');
+                    alert('Failed to switch patient. Please try again.');
                 });
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = event.currentTarget.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
             }
+        }
+
+        function changePassword(event) {
+            event.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Password validation
+            if (newPassword !== confirmPassword) {
+                alert('New passwords do not match!');
+                return false;
+            }
+
+            // Password requirements validation
+            const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            if (!passwordRegex.test(newPassword)) {
+                alert('Password does not meet the requirements!');
+                return false;
+            }
+
+            // Send password change request to server
+            fetch('/change_password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    current_password: currentPassword,
+                    new_password: newPassword
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Password changed successfully!');
+                    document.getElementById('changePasswordForm').reset();
+                } else {
+                    alert(data.message || 'Failed to change password. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+
+            return false;
         }
     </script>
 </body>
