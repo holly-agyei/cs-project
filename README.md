@@ -58,12 +58,6 @@ flask run
 2. Access the application at `http://localhost:5000`
 
 3. Login with one of the default accounts:
-- Admin: username: `admin1`, password: `adminpass`
-- Doctor: username: `dr_smith`, password: `docpass`
-- Nurse: username: `nurse_amy`, password: `nursepass`
-- Intern: username: `intern_john`, password: `internpass`
-- Receptionist: username: `receptionist1`, password: `recpass`
-- Pharmacist: username: `pharma1`, password: `pharmapass`
 
 ## Project Structure
 
