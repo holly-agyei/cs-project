@@ -98,7 +98,7 @@ flask run
 3. Elizabeth Sakyi Mensah  [LinkedIn](https://www.linkedin.com/in/elizabeth-sakyi-mensah-/
 4. Afia Pokuaa [LinkedIn](https://www.linkedin.com/in/afiapokuaa/
 5. Kelvin Oppong Acheampong  [LinkedIn](https://www.linkedin.com/in/kelvin-oppong-acheampong-936149309/
-
+6. Micheal Acheapong
 
 # License
 
