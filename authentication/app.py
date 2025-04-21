@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from functools import wraps
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from models import db, User, Patient
 from flask_migrate import Migrate
 from flask_mail import Mail, Message
@@ -96,7 +96,7 @@ def login():
         if user and user.check_password(password):
             session['username'] = username
             session['role'] = user.role
-            user.last_login = datetime.utcnow()
+            user.last_login = datetime.now(timezone.utc)
             db.session.commit()
             
             # Set default patient if user has access
@@ -147,7 +147,7 @@ def dashboard():
             'pending_reviews': Patient.query.filter(Patient.diagnosis.is_(None)).count()
         },
         'Doctor': {
-            'patients_today': Patient.query.filter_by(appointment_date=datetime.now().date()).count(),
+            'patients_today': Patient.query.filter_by(appointment_date=datetime.now(timezone.utc).date()).count(),
             'pending_reports': Patient.query.filter(Patient.diagnosis.is_(None)).count(),
             'prescriptions': 8  # This would come from a prescriptions table in a real app
         },
@@ -162,7 +162,7 @@ def dashboard():
             'study_hours': 15
         },
         'Receptionist': {
-            'appointments_today': Patient.query.filter_by(appointment_date=datetime.now().date()).count(),
+            'appointments_today': Patient.query.filter_by(appointment_date=datetime.now(timezone.utc).date()).count(),
             'check_ins': 15,  # This would come from a check-ins table in a real app
             'pending_calls': 4  # This would come from a calls table in a real app
         },
@@ -397,7 +397,7 @@ def forgot_password():
             reset_token = PasswordReset(
                 user_id=user.id,
                 token=token,
-                expires_at=datetime.utcnow() + timedelta(hours=1)
+                expires_at=datetime.now(timezone.utc) + timedelta(hours=1)
             )
             db.session.add(reset_token)
             db.session.commit()
@@ -430,7 +430,7 @@ def reset_password(token):
     # First check if the token exists and is valid
     reset_token = PasswordReset.query.filter_by(token=token).first()
     
-    if not reset_token or reset_token.expires_at < datetime.utcnow():
+    if not reset_token or reset_token.expires_at < datetime.now(timezone.utc):
         flash('The password reset link is invalid or has expired.', 'error')
         return redirect(url_for('forgot_password'))
     
@@ -514,7 +514,7 @@ def init_db():
                     "name": "John Doe",
                     "age": 42,
                     "gender": "Male",
-                    "appointment_date": datetime(2025, 4, 15).date(),
+                    "appointment_date": datetime.now(timezone.utc).date(),
                     "diagnosis": "Glaucoma (under observation)"
                 },
                 {
@@ -522,7 +522,7 @@ def init_db():
                     "name": "Mary Smith",
                     "age": 29,
                     "gender": "Female",
-                    "appointment_date": datetime(2025, 4, 13).date(),
+                    "appointment_date": datetime.now(timezone.utc).date(),
                     "diagnosis": "Cataracts"
                 },
                 {
@@ -530,7 +530,7 @@ def init_db():
                     "name": "James Brown",
                     "age": 36,
                     "gender": "Male",
-                    "appointment_date": datetime(2025, 4, 14).date(),
+                    "appointment_date": datetime.now(timezone.utc).date(),
                     "diagnosis": "Refractive error (Myopia)"
                 },
                 {
@@ -538,7 +538,7 @@ def init_db():
                     "name": "Angela White",
                     "age": 51,
                     "gender": "Female",
-                    "appointment_date": datetime(2025, 4, 16).date(),
+                    "appointment_date": datetime.now(timezone.utc).date(),
                     "diagnosis": "Diabetic Retinopathy"
                 },
                 {
@@ -546,7 +546,7 @@ def init_db():
                     "name": "Carlos Fernandez",
                     "age": 60,
                     "gender": "Male",
-                    "appointment_date": datetime(2025, 4, 17).date(),
+                    "appointment_date": datetime.now(timezone.utc).date(),
                     "diagnosis": "Macular Degeneration"
                 }
             ]
