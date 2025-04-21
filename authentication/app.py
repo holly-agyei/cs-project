@@ -50,7 +50,7 @@ TAB_PERMISSIONS = {
 }
 
 # Roles that can view patient information
-PATIENT_INFO_ACCESS = ["Doctor", "Admin", "Intern", "Nurse", "Pharmacist"]
+PATIENT_INFO_ACCESS = ["Doctor", "Admin", "Intern", "Nurse", "Pharmacist", "Receptionist"]
 
 # Add this after the TAB_PERMISSIONS dictionary
 CUSTOM_TAB_PERMISSIONS = {}
@@ -558,8 +558,6 @@ def init_db():
             db.session.commit()
 
 if __name__ == '__main__':
-    init_db()
-    # Use environment variable for port, defaulting to 5000
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port, debug=False)
     #done

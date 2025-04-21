@@ -29,23 +29,28 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background: linear-gradient(135deg, #4a6fa5 0%, #166088 100%);
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
             color: var(--dark-color);
         }
         
         .login-container {
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.95);
             padding: 2.5rem;
             border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
             width: 100%;
             max-width: 450px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            backdrop-filter: blur(10px);
         }
         
         .login-container:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
         }
         
         .logo-container {
@@ -56,7 +61,7 @@
         .logo {
             width: 80px;
             height: 80px;
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -64,6 +69,13 @@
             margin: 0 auto 1rem;
             color: white;
             font-size: 2rem;
+            box-shadow: 0 4px 15px rgba(74, 111, 165, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(74, 111, 165, 0.4);
         }
         
         h2 {
@@ -71,6 +83,8 @@
             margin-bottom: 1.5rem;
             color: var(--primary-color);
             font-weight: 600;
+            font-size: 1.75rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
         
         .form-group {
@@ -83,10 +97,16 @@
             margin-bottom: 0.5rem;
             font-weight: 500;
             color: var(--secondary-color);
+            font-size: 0.95rem;
         }
         
         .input-group {
             position: relative;
+            transition: transform 0.2s ease;
+        }
+        
+        .input-group:focus-within {
+            transform: translateY(-2px);
         }
         
         .input-icon {
@@ -95,45 +115,54 @@
             top: 50%;
             transform: translateY(-50%);
             color: var(--secondary-color);
+            transition: color 0.3s ease;
         }
         
         input {
             width: 100%;
             padding: 0.75rem 1rem 0.75rem 2.5rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
             font-size: 1rem;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.9);
         }
         
         input:focus {
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+            background-color: white;
+        }
+        
+        input:focus + .input-icon {
+            color: var(--primary-color);
         }
         
         button {
             width: 100%;
             padding: 0.875rem;
-            background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 1rem;
             font-weight: 600;
             transition: all 0.3s ease;
             margin-top: 1rem;
+            box-shadow: 0 4px 15px rgba(74, 111, 165, 0.2);
         }
         
         button:hover {
-            background: linear-gradient(to right, var(--primary-dark), var(--primary-color));
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 20px rgba(74, 111, 165, 0.3);
         }
         
         button:active {
             transform: translateY(0);
+            box-shadow: 0 4px 15px rgba(74, 111, 165, 0.2);
         }
         
         .flash-messages {
@@ -143,24 +172,45 @@
         .flash-message {
             padding: 0.875rem;
             margin-bottom: 0.75rem;
-            border-radius: 6px;
-            background-color: #f8d7da;
+            border-radius: 8px;
+            background-color: rgba(248, 215, 218, 0.9);
             color: #721c24;
             border-left: 4px solid var(--danger-color);
             font-size: 0.9rem;
+            backdrop-filter: blur(5px);
         }
         
         .footer {
             text-align: center;
             margin-top: 2rem;
             font-size: 0.85rem;
-            color: var(--secondary-color);
+            color: rgba(255, 255, 255, 0.8);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .forgot-password-link {
+            display: block;
+            text-align: right;
+            margin-top: 0.5rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+        
+        .forgot-password-link:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
         }
         
         @media (max-width: 576px) {
             .login-container {
                 margin: 1rem;
                 padding: 1.5rem;
+            }
+            
+            body {
+                background-position: center;
             }
         }
     </style>
@@ -198,7 +248,7 @@
                     <i class="fas fa-lock input-icon"></i>
                     <input type="password" id="password" name="password" placeholder="Enter your password" required>
                 </div>
-                <a href="{{ url_for('forgot_password') }}" class="forgot-password-link" style="display: block; text-align: right; margin-top: 0.5rem; color: var(--primary-color); text-decoration: none; font-size: 0.9rem;">
+                <a href="{{ url_for('forgot_password') }}" class="forgot-password-link">
                     Forgot Password?
                 </a>
             </div>
