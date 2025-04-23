@@ -2,12 +2,13 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from functools import wraps
 import os
 from datetime import datetime, timedelta
-from models import db, User, Patient
+from models import db, User, Patient, HandOff
 from flask_migrate import Migrate
 from flask_mail import Mail, Message
 import secrets
 from werkzeug.security import generate_password_hash
 from dotenv import load_dotenv
+from sqlalchemy import or_
 
 load_dotenv()  # Load environment variables from .env file
 
@@ -32,6 +33,9 @@ mail = Mail(app)
 
 # Available roles for new users
 AVAILABLE_ROLES = ["Doctor", "Nurse", "Intern", "Receptionist", "Pharmacist", "Admin"]
+
+# Add this after the AVAILABLE_ROLES list
+CUSTOM_ROLES = {}  # This will store custom roles and their permissions
 
 # Tab permissions for each role
 TAB_PERMISSIONS = {
@@ -126,18 +130,18 @@ def dashboard():
     
     # Get accessible tabs for the current role
     custom_permissions = user.get_custom_permissions() if user else []
+    
+    # Initialize accessible_tabs dictionary
+    accessible_tabs = {}
+    
     if custom_permissions:
         # Use custom permissions if available
-        accessible_tabs = {
-            tab: tab in custom_permissions
-            for tab in TAB_PERMISSIONS.keys()
-        }
+        for tab in TAB_PERMISSIONS.keys():
+            accessible_tabs[tab] = tab in custom_permissions
     else:
         # Use default role-based permissions
-        accessible_tabs = {
-            tab: tab in [t for t, roles in TAB_PERMISSIONS.items() if role in roles]
-            for tab in TAB_PERMISSIONS.keys()
-        }
+        for tab in TAB_PERMISSIONS.keys():
+            accessible_tabs[tab] = role in TAB_PERMISSIONS[tab]
     
     # Role-specific stats
     role_stats = {
@@ -185,15 +189,27 @@ def dashboard():
             if current_patient:
                 session['selected_patient_id'] = current_patient.id
 
+    # Get all users for handoff functionality
+    all_users = User.query.all()
+
+    # Get received handoffs
+    received_handoffs = HandOff.query.filter_by(
+        to_user_id=user.id,
+        is_acknowledged=False
+    ).order_by(HandOff.created_at.desc()).all()
+
     return render_template('dashboard.html',
                          username=session['username'],
+                         name=user.name,
                          role=role,
+                         current_user=user,
                          tabs=accessible_tabs,
                          stats=role_stats[role],
                          can_view_patient_info=can_view_patient_info,
                          patient_data=current_patient.to_dict() if current_patient else None,
                          all_patients=[p.to_dict() for p in Patient.query.all()] if can_view_patient_info else None,
-                         users=[u.to_dict() for u in User.query.all()] if role == 'Admin' else None)
+                         users=[u.to_dict() for u in all_users],
+                         received_handoffs=[h.to_dict() for h in received_handoffs])
 
 @app.route('/select_patient/<patient_id>')
 @login_required
@@ -300,6 +316,45 @@ def manage_users():
                          users=User.query.all(),
                          available_roles=AVAILABLE_ROLES)
 
+@app.route('/admin/roles/create', methods=['POST'])
+@login_required
+@admin_required
+def create_role():
+    try:
+        data = request.get_json()
+        role_name = data.get('role_name')
+        permissions = data.get('permissions', [])
+        
+        # Validate role name
+        if not role_name:
+            return jsonify({'success': False, 'error': 'Role name is required'}), 400
+            
+        # Check if role already exists
+        if role_name in AVAILABLE_ROLES or role_name in CUSTOM_ROLES:
+            return jsonify({'success': False, 'error': 'Role already exists'}), 400
+            
+        # Validate role name format (alphanumeric and spaces only)
+        if not all(c.isalnum() or c.isspace() for c in role_name):
+            return jsonify({'success': False, 'error': 'Role name can only contain letters, numbers, and spaces'}), 400
+            
+        # Store new role and its permissions
+        CUSTOM_ROLES[role_name] = permissions
+        
+        # Add to available roles
+        AVAILABLE_ROLES.append(role_name)
+        
+        return jsonify({
+            'success': True,
+            'message': f'Role {role_name} created successfully',
+            'role': {
+                'name': role_name,
+                'permissions': permissions
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/create_personnel', methods=['GET', 'POST'])
 @login_required
 @admin_required
@@ -316,7 +371,8 @@ def create_personnel():
             flash('All fields are required.')
             return redirect(url_for('create_personnel'))
 
-        if role not in AVAILABLE_ROLES:
+        # Check if role is valid (either in AVAILABLE_ROLES or CUSTOM_ROLES)
+        if role not in AVAILABLE_ROLES and role not in CUSTOM_ROLES:
             flash('Invalid role selected.')
             return redirect(url_for('create_personnel'))
 
@@ -328,10 +384,16 @@ def create_personnel():
             flash('Email already exists.')
             return redirect(url_for('create_personnel'))
 
-        # Create new user with custom permissions
+        # Create new user
         new_user = User(username=username, role=role, name=name, email=email)
         new_user.set_password(password)
-        new_user.set_custom_permissions(tab_permissions)
+        
+        # Set permissions based on role type
+        if role in CUSTOM_ROLES:
+            new_user.set_custom_permissions(CUSTOM_ROLES[role])
+        else:
+            new_user.set_custom_permissions(tab_permissions)
+            
         db.session.add(new_user)
         db.session.commit()
         
@@ -341,10 +403,13 @@ def create_personnel():
     # Get all available tabs for permissions
     all_tabs = list(TAB_PERMISSIONS.keys())
     
+    # Combine default and custom roles
+    all_roles = AVAILABLE_ROLES + list(CUSTOM_ROLES.keys())
+    
     return render_template('create_personnel.html',
                          username=session['username'],
                          role=session['role'],
-                         available_roles=AVAILABLE_ROLES,
+                         available_roles=all_roles,
                          all_tabs=all_tabs)
 
 @app.route('/change_password', methods=['POST'])
@@ -478,87 +543,307 @@ def validate_password(password):
         return False
     return True
 
+@app.route('/handoff', methods=['POST'])
+@login_required
+def handoff():
+    # Check if user has permission to perform handoffs
+    if session['role'] not in TAB_PERMISSIONS['Hand Off']:
+        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
+
+    data = request.get_json()
+    
+    # Validate required fields
+    required_fields = ['to_user_id', 'patient_status', 'care_instructions', 'pending_tasks']
+    if not all(field in data and data[field] for field in required_fields):
+        return jsonify({'status': 'error', 'message': 'Missing required fields'}), 400
+    
+    # Get the target user
+    target_user = User.query.get(data['to_user_id'])
+    if not target_user or target_user.username == session['username']:
+        return jsonify({'status': 'error', 'message': 'Invalid target user'}), 400
+    
+    # Get the current patient
+    current_patient = Patient.query.get(session.get('selected_patient_id'))
+    if not current_patient:
+        return jsonify({'status': 'error', 'message': 'No patient selected'}), 400
+    
+    try:
+        # Create new handoff record
+        handoff = HandOff(
+            from_user_id=User.query.filter_by(username=session['username']).first().id,
+            to_user_id=target_user.id,
+            patient_id=current_patient.id,
+            patient_status=data['patient_status'],
+            care_instructions=data['care_instructions'],
+            medications=data.get('medications', ''),
+            pending_tasks=data['pending_tasks'],
+            alerts=','.join(data.get('alerts', []))
+        )
+        
+        db.session.add(handoff)
+        db.session.commit()
+        
+        return jsonify({
+            'status': 'success',
+            'message': f'Patient successfully handed off to {target_user.name}'
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/acknowledge_handoff/<int:handoff_id>', methods=['POST'])
+@login_required
+def acknowledge_handoff(handoff_id):
+    try:
+        handoff = HandOff.query.get_or_404(handoff_id)
+        
+        # Get current user
+        current_user = User.query.filter_by(username=session['username']).first()
+        if not current_user:
+            return jsonify({'status': 'error', 'message': 'Current user not found'}), 404
+        
+        # Verify the handoff is for the current user
+        if handoff.to_user_id != current_user.id:
+            return jsonify({'status': 'error', 'message': 'Unauthorized to acknowledge this handoff'}), 403
+            
+        # Mark the handoff as acknowledged
+        handoff.is_acknowledged = True
+        handoff.acknowledged_at = datetime.utcnow()
+        db.session.commit()
+        
+        return jsonify({'status': 'success', 'message': 'Handoff acknowledged successfully'})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/create_handoff', methods=['POST'])
+@login_required
+def create_handoff():
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        required_fields = ['to_user_id', 'patient_name', 'care_instructions']
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({'error': f'Missing required field: {field}'}), 400
+        
+        # Get current user
+        current_user = User.query.filter_by(username=session['username']).first()
+        if not current_user:
+            return jsonify({'error': 'Current user not found'}), 404
+
+        # Create new handoff
+        handoff = HandOff(
+            from_user_id=current_user.id,
+            to_user_id=data['to_user_id'],
+            patient_name=data['patient_name'],
+            care_instructions=data['care_instructions'],
+            medications=data.get('medications', ''),
+            pending_tasks=data.get('pending_tasks', ''),
+            critical_alerts=data.get('critical_alerts', ''),
+            is_acknowledged=False,
+            created_at=datetime.utcnow()
+        )
+        
+        db.session.add(handoff)
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Handoff created successfully',
+            'handoff_id': handoff.id
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/archive_handoff/<int:handoff_id>', methods=['POST'])
+@login_required
+def archive_handoff(handoff_id):
+    try:
+        handoff = HandOff.query.get_or_404(handoff_id)
+        
+        # Verify the handoff is for the current user
+        current_user = User.query.filter_by(username=session['username']).first()
+        if handoff.to_user_id != current_user.id:
+            return jsonify({'success': False, 'error': 'Unauthorized to archive this handoff'}), 403
+            
+        # Only allow archiving of acknowledged handoffs
+        if not handoff.is_acknowledged:
+            return jsonify({'success': False, 'error': 'Handoff must be acknowledged before archiving'}), 400
+            
+        # Archive the handoff
+        handoff.is_archived = True
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Handoff archived successfully'})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/get_handoffs', methods=['GET'])
+@login_required
+def get_handoffs():
+    try:
+        # Get current user
+        current_user = User.query.filter_by(username=session['username']).first()
+        if not current_user:
+            return jsonify({'error': 'Current user not found'}), 404
+
+        # Get query parameters
+        filter_type = request.args.get('type', 'all')  # all, sent, received
+        include_acknowledged = request.args.get('include_acknowledged', 'false').lower() == 'true'
+        show_archived = request.args.get('show_archived', 'false').lower() == 'true'
+        
+        # Base query
+        query = HandOff.query
+        
+        # Apply filters
+        if filter_type == 'sent':
+            query = query.filter_by(from_user_id=current_user.id)
+        elif filter_type == 'received':
+            query = query.filter_by(to_user_id=current_user.id)
+        else:  # 'all'
+            query = query.filter(or_(
+                HandOff.from_user_id == current_user.id,
+                HandOff.to_user_id == current_user.id
+            ))
+        
+        # Filter acknowledged status if specified
+        if not include_acknowledged:
+            query = query.filter_by(is_acknowledged=False)
+            
+        # Filter archived status
+        if not show_archived:
+            query = query.filter_by(is_archived=False)
+            
+        # Order by creation date, newest first
+        handoffs = query.order_by(HandOff.created_at.desc()).all()
+        
+        # Format handoffs for response
+        formatted_handoffs = []
+        for handoff in handoffs:
+            from_user = User.query.get(handoff.from_user_id)
+            to_user = User.query.get(handoff.to_user_id)
+            
+            handoff_dict = handoff.to_dict()
+            handoff_dict['is_receiver'] = handoff.to_user_id == current_user.id
+            
+            formatted_handoffs.append(handoff_dict)
+        
+        return jsonify({'handoffs': formatted_handoffs}), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/get_users', methods=['GET'])
+@login_required
+def get_users():
+    try:
+        # Get current user
+        current_user = User.query.filter_by(username=session['username']).first()
+        if not current_user:
+            return jsonify({'error': 'Current user not found'}), 404
+
+        # Get all users except the current user
+        users = User.query.filter(User.id != current_user.id).all()
+        
+        # Format users for response
+        formatted_users = [{
+            'id': user.id,
+            'name': user.name,
+            'username': user.username,
+            'role': user.role
+        } for user in users]
+        
+        return jsonify({'users': formatted_users}), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # Create database tables and add initial data
 def init_db():
     with app.app_context():
+        # Drop all tables and recreate them
+        db.drop_all()
         db.create_all()
         
         # Add initial users if none exist
-        if User.query.count() == 0:
-            initial_users = [
-                {"username": "admin1", "password": "adminpass", "role": "Admin", "name": "Admin User", "email": "admin1@eyeclinic.com"},
-                {"username": "dr_smith", "password": "docpass", "role": "Doctor", "name": "Dr. Smith", "email": "dr.smith@eyeclinic.com"},
-                {"username": "nurse_amy", "password": "nursepass", "role": "Nurse", "name": "Nurse Amy", "email": "nurse.amy@eyeclinic.com"},
-                {"username": "intern_john", "password": "internpass", "role": "Intern", "name": "John Intern", "email": "intern.john@eyeclinic.com"},
-                {"username": "receptionist1", "password": "recpass", "role": "Receptionist", "name": "Receptionist", "email": "receptionist1@eyeclinic.com"},
-                {"username": "pharma1", "password": "pharmapass", "role": "Pharmacist", "name": "Pharmacist", "email": "pharma1@eyeclinic.com"}
-            ]
-            
-            for user_data in initial_users:
-                user = User(
-                    username=user_data["username"],
-                    role=user_data["role"],
-                    name=user_data["name"],
-                    email=user_data["email"]
-                )
-                user.set_password(user_data["password"])
-                db.session.add(user)
-            
-            db.session.commit()
+        initial_users = [
+            {"username": "admin1", "password": "adminpass", "role": "Admin", "name": "Admin User", "email": "admin1@eyeclinic.com"},
+            {"username": "dr_smith", "password": "docpass", "role": "Doctor", "name": "Dr. Smith", "email": "dr.smith@eyeclinic.com"},
+            {"username": "nurse_amy", "password": "nursepass", "role": "Nurse", "name": "Nurse Amy", "email": "nurse.amy@eyeclinic.com"},
+            {"username": "intern_john", "password": "internpass", "role": "Intern", "name": "John Intern", "email": "intern.john@eyeclinic.com"},
+            {"username": "receptionist1", "password": "recpass", "role": "Receptionist", "name": "Receptionist", "email": "receptionist1@eyeclinic.com"},
+            {"username": "pharma1", "password": "pharmapass", "role": "Pharmacist", "name": "Pharmacist", "email": "pharma1@eyeclinic.com"}
+        ]
         
-        # Add initial patients if none exist
-        if Patient.query.count() == 0:
-            initial_patients = [
-                {
-                    "id": "EC-2025-001",
-                    "name": "John Doe",
-                    "age": 42,
-                    "gender": "Male",
-                    "appointment_date": datetime(2025, 4, 15).date(),
-                    "diagnosis": "Glaucoma (under observation)"
-                },
-                {
-                    "id": "EC-2025-002",
-                    "name": "Mary Smith",
-                    "age": 29,
-                    "gender": "Female",
-                    "appointment_date": datetime(2025, 4, 13).date(),
-                    "diagnosis": "Cataracts"
-                },
-                {
-                    "id": "EC-2025-003",
-                    "name": "James Brown",
-                    "age": 36,
-                    "gender": "Male",
-                    "appointment_date": datetime(2025, 4, 14).date(),
-                    "diagnosis": "Refractive error (Myopia)"
-                },
-                {
-                    "id": "EC-2025-004",
-                    "name": "Angela White",
-                    "age": 51,
-                    "gender": "Female",
-                    "appointment_date": datetime(2025, 4, 16).date(),
-                    "diagnosis": "Diabetic Retinopathy"
-                },
-                {
-                    "id": "EC-2025-005",
-                    "name": "Carlos Fernandez",
-                    "age": 60,
-                    "gender": "Male",
-                    "appointment_date": datetime(2025, 4, 17).date(),
-                    "diagnosis": "Macular Degeneration"
-                }
-            ]
-            
-            for patient_data in initial_patients:
-                patient = Patient(**patient_data)
-                db.session.add(patient)
-            
-            db.session.commit()
+        for user_data in initial_users:
+            user = User(
+                username=user_data["username"],
+                role=user_data["role"],
+                name=user_data["name"],
+                email=user_data["email"]
+            )
+            user.set_password(user_data["password"])
+            db.session.add(user)
+        
+        db.session.commit()
+        
+        # Add initial patients
+        initial_patients = [
+            {
+                "id": "EC-2025-001",
+                "name": "John Doe",
+                "age": 42,
+                "gender": "Male",
+                "appointment_date": datetime(2025, 4, 15).date(),
+                "diagnosis": "Glaucoma (under observation)"
+            },
+            {
+                "id": "EC-2025-002",
+                "name": "Mary Smith",
+                "age": 29,
+                "gender": "Female",
+                "appointment_date": datetime(2025, 4, 13).date(),
+                "diagnosis": "Cataracts"
+            },
+            {
+                "id": "EC-2025-003",
+                "name": "James Brown",
+                "age": 36,
+                "gender": "Male",
+                "appointment_date": datetime(2025, 4, 14).date(),
+                "diagnosis": "Refractive error (Myopia)"
+            },
+            {
+                "id": "EC-2025-004",
+                "name": "Angela White",
+                "age": 51,
+                "gender": "Female",
+                "appointment_date": datetime(2025, 4, 16).date(),
+                "diagnosis": "Diabetic Retinopathy"
+            },
+            {
+                "id": "EC-2025-005",
+                "name": "Carlos Fernandez",
+                "age": 60,
+                "gender": "Male",
+                "appointment_date": datetime(2025, 4, 17).date(),
+                "diagnosis": "Macular Degeneration"
+            }
+        ]
+        
+        for patient_data in initial_patients:
+            patient = Patient(**patient_data)
+            db.session.add(patient)
+        
+        db.session.commit()
 
 if __name__ == '__main__':
-    init_db()
-    port = int(os.environ.get('PORT', 10000))
+    port = int(os.environ.get('PORT', 8084))
     app.run(host='0.0.0.0', port=port, debug=False)
     #done

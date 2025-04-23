@@ -67,4 +67,43 @@ class Patient(db.Model):
             'diagnosis': self.diagnosis,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+class HandOff(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    from_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    to_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    patient_name = db.Column(db.String(100), nullable=False)
+    care_instructions = db.Column(db.Text, nullable=False)
+    medications = db.Column(db.Text)
+    pending_tasks = db.Column(db.Text)
+    critical_alerts = db.Column(db.Text)
+    is_acknowledged = db.Column(db.Boolean, default=False)
+    is_archived = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    acknowledged_at = db.Column(db.DateTime)
+    
+    # Relationships
+    from_user = db.relationship('User', foreign_keys=[from_user_id], backref='handoffs_sent')
+    to_user = db.relationship('User', foreign_keys=[to_user_id], backref='handoffs_received')
+
+    def to_dict(self):
+        from_user = User.query.get(self.from_user_id)
+        to_user = User.query.get(self.to_user_id)
+        return {
+            'id': self.id,
+            'from_user_id': self.from_user_id,
+            'to_user_id': self.to_user_id,
+            'from_user_name': from_user.name if from_user else 'Unknown',
+            'to_user_name': to_user.name if to_user else 'Unknown',
+            'patient_name': self.patient_name,
+            'care_instructions': self.care_instructions,
+            'medications': self.medications,
+            'pending_tasks': self.pending_tasks,
+            'critical_alerts': self.critical_alerts,
+            'is_acknowledged': self.is_acknowledged,
+            'is_archived': self.is_archived,
+            'created_at': self.created_at.isoformat(),
+            'acknowledged_at': self.acknowledged_at.isoformat() if self.acknowledged_at else None,
+            'is_receiver': True  # This will be modified by the route handler
         } 

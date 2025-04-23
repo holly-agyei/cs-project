@@ -3,190 +3,379 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Personnel - Eye Clinic Management System</title>
+    <title>Create New Personnel - Eye Clinic</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        :root {
+            --primary-color: #4a6fa5;
+            --primary-dark: #3a5a8c;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --border-color: #e9ecef;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            background-color: #f5f5f5;
         }
-        .navbar {
-            background-color: #333;
-            padding: 1rem;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-        }
-        .navbar a {
-            color: white;
-            text-decoration: none;
-        }
-        .main-content {
-            margin-top: 4rem;
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            min-height: 100vh;
             padding: 2rem;
+        }
+
+        .container {
             max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .card {
-            background-color: white;
+            margin: 0 auto;
+            background: white;
             padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #2c3e50;
-        }
-        .form-control {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-        .form-control:focus {
-            outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
-        }
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-            margin-right: 1rem;
-        }
-        .btn-secondary:hover {
-            background-color: #545b62;
-        }
-        .flash-messages {
-            margin-bottom: 1rem;
-        }
-        .flash-message {
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            border-radius: 4px;
+
+        .welcome-message {
             background-color: #cce5ff;
             color: #004085;
-            border: 1px solid #b8daff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
         }
+
+        h1 {
+            color: var(--dark-color);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.1);
+        }
+
+        .permissions-group {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--light-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .permissions-title {
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--dark-color);
+            font-size: 1.1rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .permissions-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.2rem;
+            padding: 0.5rem;
+        }
+
+        .permission-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .permission-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .permission-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .permission-item label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: var(--dark-color);
+        }
+
+        @media (max-width: 768px) {
+            .permissions-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .permissions-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .button-group {
             display: flex;
             gap: 1rem;
-            margin-top: 1rem;
+            margin-top: 2rem;
         }
-        .checkbox-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 0.5rem;
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
-        .checkbox-item {
-            display: flex;
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
             align-items: center;
-            gap: 0.5rem;
         }
-        .checkbox-item input[type="checkbox"] {
-            width: auto;
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--secondary-color);
+        }
+
+        .role-option-add {
+            color: var(--primary-color);
+            font-weight: 600;
+            border-top: 1px solid var(--border-color);
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+        }
+
+        #roleSelect {
+            margin-bottom: 0.5rem;
         }
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <div>
-            <h2 style="margin: 0;">Eye Clinic Management System</h2>
-        </div>
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
-            <a href="{{ url_for('logout') }}">Logout</a>
-        </div>
-    </div>
-
-    <div class="main-content">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="flash-messages">
-                    {% for message in messages %}
-                        <div class="flash-message">{{ message }}</div>
+    <div class="container">
+        <div class="welcome-message">Welcome {{ username }}!</div>
+        
+        <h1>Create New Personnel</h1>
+        
+        <form id="createPersonnelForm" method="POST">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Temporary Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="roleSelect">Role</label>
+                <select id="roleSelect" name="role" required>
+                    <option value="">Select a role...</option>
+                    {% for role in available_roles %}
+                    <option value="{{ role }}">{{ role }}</option>
+                    {% endfor %}
+                    <option value="add_new" class="role-option-add">+ Add New Role</option>
+                </select>
+            </div>
+            
+            <div class="permissions-group">
+                <div class="permissions-title">Tab Permissions</div>
+                <div class="permissions-list">
+                    {% for tab in all_tabs %}
+                    <div class="permission-item">
+                        <input type="checkbox" id="tab_{{ tab }}" name="tab_permissions" value="{{ tab }}">
+                        <label for="tab_{{ tab }}">{{ tab }}</label>
+                    </div>
                     {% endfor %}
                 </div>
-            {% endif %}
-        {% endwith %}
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">Create Personnel</button>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
 
-        <div class="card">
-            <h2>Create New Personnel</h2>
-            <form method="POST">
+    <!-- New Role Modal -->
+    <div id="newRoleModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <h2>Create New Role</h2>
+            <form id="newRoleForm">
                 <div class="form-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" name="name" class="form-control" required>
+                    <label for="newRoleName">Role Name</label>
+                    <input type="text" id="newRoleName" name="newRoleName" required>
                 </div>
                 <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Temporary Password</label>
-                    <input type="password" id="password" name="password" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="role">Role</label>
-                    <select id="role" name="role" class="form-control" required>
-                        <option value="">Select a role...</option>
-                        {% for role in available_roles %}
-                            <option value="{{ role }}">{{ role }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Tab Access Permissions</label>
-                    <div class="checkbox-group">
+                    <label>Default Tab Permissions</label>
+                    <div class="permissions-list">
                         {% for tab in all_tabs %}
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="tab_{{ tab }}" name="tab_permissions" value="{{ tab }}">
-                                <label for="tab_{{ tab }}">{{ tab }}</label>
-                            </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="new_role_tab_{{ tab }}" name="new_role_permissions" value="{{ tab }}">
+                            <label for="new_role_tab_{{ tab }}">{{ tab }}</label>
+                        </div>
                         {% endfor %}
                     </div>
                 </div>
-                <div class="button-group">
-                    <button type="submit" class="btn btn-primary">Create Personnel</button>
-                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
-                </div>
+                <button type="submit" class="btn btn-primary">Create Role</button>
             </form>
         </div>
     </div>
+
+    <script>
+        const roleSelect = document.getElementById('roleSelect');
+        const modal = document.getElementById('newRoleModal');
+        const modalClose = document.querySelector('.modal-close');
+        const newRoleForm = document.getElementById('newRoleForm');
+
+        roleSelect.addEventListener('change', function() {
+            if (this.value === 'add_new') {
+                modal.classList.add('active');
+            }
+        });
+
+        modalClose.addEventListener('click', function() {
+            modal.classList.remove('active');
+            roleSelect.value = '';
+        });
+
+        newRoleForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const roleName = document.getElementById('newRoleName').value;
+            const permissions = Array.from(document.getElementsByName('new_role_permissions'))
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value);
+
+            fetch('/admin/roles/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    role_name: roleName,
+                    permissions: permissions
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Add new role to select options
+                    const option = document.createElement('option');
+                    option.value = roleName;
+                    option.textContent = roleName;
+                    roleSelect.insertBefore(option, roleSelect.lastElementChild);
+                    roleSelect.value = roleName;
+                    
+                    // Close modal
+                    modal.classList.remove('active');
+                    newRoleForm.reset();
+                } else {
+                    alert(data.error || 'Failed to create role');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to create role. Please try again.');
+            });
+        });
+
+        // Close modal if clicking outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+                roleSelect.value = '';
+            }
+        });
+    </script>
 </body>
 </html> 

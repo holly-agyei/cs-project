@@ -378,8 +378,47 @@
             transition: all 0.3s ease;
             opacity: 0;
             transform: translateY(20px);
-            height: 0;
-            overflow: hidden;
+        }
+        
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+            height: auto;
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .placeholder-content {
+            text-align: center;
+            padding: 3rem;
+            color: var(--secondary-color);
+        }
+        
+        .placeholder-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .placeholder-text {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .placeholder-subtext {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
         }
         
         .settings-container {
@@ -530,25 +569,6 @@
             color: var(--success-color);
         }
         
-        .tab-content.active {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-            height: auto;
-            animation: slideDown 0.3s ease forwards;
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
         .manage-users-container {
             background: white;
             padding: 2rem;
@@ -645,7 +665,7 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 8px var(--shadow-color);
         }
-        
+
         @media (max-width: 768px) {
             .main-content {
                 flex-direction: column;
@@ -656,15 +676,453 @@
                 width: 100%;
                 top: 0;
                 margin-bottom: 1rem;
-            }
+        }
             
             .dashboard-container {
                 margin-left: 0;
-            }
+        }
             
             .stats-container {
                 grid-template-columns: 1fr;
             }
+        }
+
+        .manage-users-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .manage-users-section h2 {
+            margin-bottom: 1.5rem;
+            color: var(--dark-color);
+            font-size: 1.5rem;
+        }
+
+        .create-personnel-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px var(--shadow-color);
+            transition: all 0.3s ease;
+        }
+
+        .create-personnel-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+
+        .users-table-container {
+            overflow-x: auto;
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 0.5rem;
+        }
+
+        .users-table th {
+            text-align: left;
+            padding: 1rem;
+            background: var(--light-color);
+            color: var(--dark-color);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .users-table td {
+            padding: 1rem;
+            background: white;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .users-table tr:hover td {
+            background: var(--light-color);
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0 0.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn {
+            background: var(--info-color);
+            color: white;
+        }
+        
+        .delete-btn {
+            background: var(--danger-color);
+            color: white;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow-color);
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .handoff-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .handoff-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .handoff-form {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--light-color);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.1);
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .alert-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--light-color);
+            border-radius: 8px;
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .alert-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow-color);
+        }
+
+        .btn-handoff {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 5px var(--shadow-color);
+        }
+
+        .btn-handoff:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px var(--shadow-color);
+        }
+
+        .handoff-notifications {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .handoff-notifications h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .handoff-notification {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .handoff-notification:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px var(--shadow-color);
+        }
+
+        .handoff-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .from-user {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .handoff-time {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+        }
+
+        .handoff-patient {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+        }
+
+        .handoff-details {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .detail-group {
+            background: var(--light-color);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .detail-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .detail-group p {
+            margin: 0;
+            color: var(--dark-color);
+            line-height: 1.4;
+        }
+
+        .alert-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .alert-tag {
+            background: var(--danger-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .btn-acknowledge {
+            background: var(--gradient-success);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            box-shadow: 0 2px 5px var(--shadow-color);
+        }
+
+        .btn-acknowledge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px var(--shadow-color);
+        }
+
+        .handoff-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 1rem;
+        }
+
+        .create-handoff-section, .handoff-list-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .handoff-form .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .handoff-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .handoff-form input,
+        .handoff-form select,
+        .handoff-form textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .handoff-form textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .handoff-filters {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .handoff-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .handoff-item {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .handoff-item.unacknowledged {
+            border-left: 4px solid #dc3545;
+        }
+
+        .handoff-item h4 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+        }
+
+        .handoff-item .meta {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .handoff-item .content {
+            margin-top: 0.5rem;
+        }
+
+        .handoff-item .actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .handoff-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .status-archived {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .handoff-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-right: 0.5rem;
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: var(--dark-color);
+        }
+
+        .no-handoffs {
+            text-align: center;
+            padding: 2rem;
+            color: var(--secondary-color);
+            font-style: italic;
         }
     </style>
 </head>
@@ -737,8 +1195,57 @@
 
         <div class="dashboard-container">
             <div class="welcome-card">
-                <h1>Welcome, {{ username }}!</h1>
-                <p>You are logged in as a <span class="role-badge role-{{ role }}">{{ role }}</span></p>
+                <h1>Welcome, {{ name }}!</h1>
+                <div class="role-badge role-{{ role }}">{{ role }}</div>
+                
+                {% if received_handoffs %}
+                <div class="handoff-notifications">
+                    <h2>Received Handoffs</h2>
+                    {% for handoff in received_handoffs %}
+                    <div class="handoff-notification">
+                        <div class="handoff-header">
+                            <span class="from-user">From: {{ handoff.from_user }} ({{ handoff.from_user_role }})</span>
+                            <span class="handoff-time">{{ handoff.created_at }}</span>
+                        </div>
+                        <div class="handoff-patient">Patient: {{ handoff.patient_name }}</div>
+                        <div class="handoff-details">
+                            <div class="detail-group">
+                                <label>Status:</label>
+                                <p>{{ handoff.patient_status }}</p>
+                            </div>
+                            <div class="detail-group">
+                                <label>Care Instructions:</label>
+                                <p>{{ handoff.care_instructions }}</p>
+                            </div>
+                            {% if handoff.medications %}
+                            <div class="detail-group">
+                                <label>Medications:</label>
+                                <p>{{ handoff.medications }}</p>
+                            </div>
+                            {% endif %}
+                            <div class="detail-group">
+                                <label>Pending Tasks:</label>
+                                <p>{{ handoff.pending_tasks }}</p>
+                            </div>
+                            {% if handoff.alerts %}
+                            <div class="detail-group">
+                                <label>Critical Alerts:</label>
+                                <div class="alert-tags">
+                                    {% for alert in handoff.alerts %}
+                                    <span class="alert-tag">{{ alert }}</span>
+                        {% endfor %}
+                                </div>
+                    </div>
+                {% endif %}
+                        </div>
+                        <button class="btn-acknowledge" onclick="acknowledgeHandoff('{{ handoff.id }}')">
+                            <i class="fas fa-check"></i>
+                            Acknowledge
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
             </div>
 
             {% if role == 'Admin' %}
@@ -747,7 +1254,7 @@
                     <i class="fas fa-users stat-icon"></i>
                     <div class="stat-value">{{ stats.total_patients }}</div>
                     <div class="stat-label">Total Patients</div>
-                </div>
+            </div>
                 <div class="stat-card">
                     <i class="fas fa-clipboard-check stat-icon"></i>
                     <div class="stat-value">{{ stats.active_cases }}</div>
@@ -763,204 +1270,210 @@
 
             <div class="tabs-container">
                 <div class="tab-buttons">
-                    {% for tab, has_access in tabs.items() %}
-                        {% if has_access and tab != 'Settings' %}
-                        <button class="tab-button" onclick="showTab('{{ tab }}')">
-                            {% if tab == 'Manage Users' %}
-                                <i class="fas fa-users"></i>
-                            {% elif tab == 'HPI' %}
-                                <i class="fas fa-file-medical"></i>
-                            {% elif tab == 'CC' %}
-                                <i class="fas fa-comment-medical"></i>
-                            {% elif tab == 'ROS' %}
-                                <i class="fas fa-clipboard-list"></i>
-                            {% elif tab == 'PMH' %}
-                                <i class="fas fa-history"></i>
-                            {% elif tab == 'P/FH' %}
-                                <i class="fas fa-users"></i>
-                            {% elif tab == 'Vision' %}
-                                <i class="fas fa-eye"></i>
-                            {% elif tab == 'Exam' %}
-                                <i class="fas fa-stethoscope"></i>
-                            {% elif tab == 'Photos/Videos' %}
-                                <i class="fas fa-camera"></i>
-                            {% elif tab == 'E-prescribe' %}
-                                <i class="fas fa-prescription"></i>
-                            {% elif tab == 'Hand Off' %}
-                                <i class="fas fa-exchange-alt"></i>
-                            {% endif %}
-                                {{ tab }}
+                    <button class="tab-button" data-tab="hpi">
+                        <i class="fas fa-file-medical"></i> HPI
                             </button>
-                        {% endif %}
-                    {% endfor %}
+                    <button class="tab-button" data-tab="cc">
+                        <i class="fas fa-comment-medical"></i> CC
+                    </button>
+                    <button class="tab-button" data-tab="ros">
+                        <i class="fas fa-clipboard-list"></i> ROS
+                    </button>
+                    <button class="tab-button" data-tab="pmh">
+                        <i class="fas fa-history"></i> PMH
+                    </button>
+                    <button class="tab-button" data-tab="pfh">
+                        <i class="fas fa-users"></i> P/FH
+                    </button>
+                    <button class="tab-button" data-tab="vision">
+                        <i class="fas fa-eye"></i> Vision
+                    </button>
+                    <button class="tab-button" data-tab="exam">
+                        <i class="fas fa-stethoscope"></i> Exam
+                    </button>
+                    <button class="tab-button" data-tab="photos">
+                        <i class="fas fa-camera"></i> Photos/Videos
+                    </button>
+                    <button class="tab-button" data-tab="eprescribe">
+                        <i class="fas fa-prescription"></i> E-prescribe
+                    </button>
+                    <button class="tab-button" data-tab="handoff">
+                        <i class="fas fa-exchange-alt"></i> Hand Off
+                    </button>
+                    {% if role == 'Admin' %}
+                    <button class="tab-button" data-tab="manage-users">
+                        <i class="fas fa-users-cog"></i> Manage Users
+                        </button>
+                    {% endif %}
                 </div>
 
-                <div id="Settings" class="tab-content">
-                    <div class="settings-container">
-                        <div class="settings-card">
-                            <div class="settings-header">
-                                <div class="settings-icon">
-                                    <i class="fas fa-key"></i>
-                                </div>
-                                <h3 class="settings-title">Change Password</h3>
-                            </div>
-                            <form id="changePasswordForm" onsubmit="return changePassword(event)">
+                <!-- Tab Content Sections -->
+                <div id="hpi" class="tab-content">
+                    <div class="placeholder-content">
+                        <i class="fas fa-file-medical placeholder-icon"></i>
+                        <h2 class="placeholder-text">History of Present Illness</h2>
+                        <p class="placeholder-subtext">Record and view patient's current illness history</p>
+                    </div>
+                </div>
+
+                <div id="cc" class="tab-content">
+                    <div class="placeholder-content">
+                        <i class="fas fa-comment-medical placeholder-icon"></i>
+                        <h2 class="placeholder-text">Chief Complaint</h2>
+                        <p class="placeholder-subtext">Document patient's main symptoms and concerns</p>
+                    </div>
+                </div>
+
+                <div id="ros" class="tab-content">
+                    <div class="placeholder-content">
+                        <i class="fas fa-clipboard-list placeholder-icon"></i>
+                        <h2 class="placeholder-text">Review of Systems</h2>
+                        <p class="placeholder-subtext">Systematic review of patient's health systems</p>
+                    </div>
+                </div>
+
+                <div id="pmh" class="tab-content">
+                    <div class="placeholder-content">
+                        <i class="fas fa-history placeholder-icon"></i>
+                        <h2 class="placeholder-text">Past Medical History</h2>
+                        <p class="placeholder-subtext">View and update patient's medical history</p>
+                    </div>
+                </div>
+
+                <div id="pfh" class="tab-content">
+                    <div class="placeholder-content">
+                        <i class="fas fa-users placeholder-icon"></i>
+                        <h2 class="placeholder-text">Personal/Family History</h2>
+                        <p class="placeholder-subtext">Record family medical history and personal health information</p>
+                    </div>
+                </div>
+
+                <div id="vision" class="tab-content">
+                    <div class="placeholder-content">
+                        <i class="fas fa-eye placeholder-icon"></i>
+                        <h2 class="placeholder-text">Vision Assessment</h2>
+                        <p class="placeholder-subtext">Record vision test results and measurements</p>
+                    </div>
+                </div>
+
+                <div id="exam" class="tab-content">
+                    <div class="placeholder-content">
+                        <i class="fas fa-stethoscope placeholder-icon"></i>
+                        <h2 class="placeholder-text">Eye Examination</h2>
+                        <p class="placeholder-subtext">Document comprehensive eye examination findings</p>
+                    </div>
+                </div>
+
+                <div id="photos" class="tab-content">
+                    <div class="placeholder-content">
+                        <i class="fas fa-camera placeholder-icon"></i>
+                        <h2 class="placeholder-text">Photos & Videos</h2>
+                        <p class="placeholder-subtext">Upload and view patient's eye images and videos</p>
+                    </div>
+                </div>
+
+                <div id="eprescribe" class="tab-content">
+                    <div class="placeholder-content">
+                        <i class="fas fa-prescription placeholder-icon"></i>
+                        <h2 class="placeholder-text">E-Prescribe</h2>
+                        <p class="placeholder-subtext">Create and manage electronic prescriptions</p>
+                    </div>
+                </div>
+
+                <div id="handoff" class="tab-content">
+                    <div class="handoff-container">
+                        <div class="handoff-form">
+                            <h3>Create New Handoff</h3>
+                            <form id="handoff-form">
                                 <div class="form-group">
-                                    <label class="form-label" for="currentPassword">Current Password</label>
-                                    <div class="password-field">
-                                        <input type="password" id="currentPassword" class="form-input" required>
-                                        <button type="button" class="password-toggle" onclick="togglePassword('currentPassword')">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </div>
+                                    <label for="to_user">To User:</label>
+                                    <select id="to_user" name="to_user" required>
+                                        <option value="">Select User</option>
+                                    </select>
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label" for="newPassword">New Password</label>
-                                    <div class="password-field">
-                                        <input type="password" id="newPassword" class="form-input" required>
-                                        <button type="button" class="password-toggle" onclick="togglePassword('newPassword')">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </div>
+                                    <label for="patient_name">Patient Name:</label>
+                                    <input type="text" id="patient_name" name="patient_name" required>
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label" for="confirmPassword">Confirm New Password</label>
-                                    <div class="password-field">
-                                        <input type="password" id="confirmPassword" class="form-input" required>
-                                        <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </div>
+                                    <label for="care_instructions">Care Instructions:</label>
+                                    <textarea id="care_instructions" name="care_instructions" required></textarea>
                                 </div>
-                                <div class="password-requirements">
-                                    <div class="requirement-item">
-                                        <i class="fas fa-check-circle"></i>
-                                        <span>At least 8 characters long</span>
-                                    </div>
-                                    <div class="requirement-item">
-                                        <i class="fas fa-check-circle"></i>
-                                        <span>Contains at least one uppercase letter</span>
-                                    </div>
-                                    <div class="requirement-item">
-                                        <i class="fas fa-check-circle"></i>
-                                        <span>Contains at least one number</span>
-                                    </div>
-                                    <div class="requirement-item">
-                                        <i class="fas fa-check-circle"></i>
-                                        <span>Contains at least one special character</span>
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn-change-password">
-                                    <i class="fas fa-save"></i>
-                                    Change Password
-                        </button>
+                                <button type="submit" class="btn btn-primary">Create Handoff</button>
                             </form>
                         </div>
-                    </div>
-                </div>
-
-                <div id="HPI" class="tab-content">
-                    <div class="settings-card">
-                        <div class="settings-header">
-                            <div class="settings-icon">
-                                <i class="fas fa-file-medical"></i>
+                        
+                        <div class="handoff-list">
+                            <h3>Handoffs</h3>
+                            <div class="filter-controls">
+                                <select id="handoff-type">
+                                    <option value="all">All Handoffs</option>
+                                    <option value="sent">Sent</option>
+                                    <option value="received">Received</option>
+                                </select>
+                                <label>
+                                    <input type="checkbox" id="show-acknowledged"> Show Acknowledged
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="show-archived"> Show Archived
+                                </label>
                             </div>
-                            <h3 class="settings-title">History of Present Illness</h3>
+                            <div id="handoffs-container"></div>
                         </div>
-                        <p>Record and view the patient's current medical condition and symptoms.</p>
-                    </div>
-                </div>
-
-                <div id="CC" class="tab-content">
-                    <div class="settings-card">
-                        <div class="settings-header">
-                            <div class="settings-icon">
-                                <i class="fas fa-comment-medical"></i>
-                            </div>
-                            <h3 class="settings-title">Chief Complaint</h3>
-                        </div>
-                        <p>Document the patient's primary reason for seeking medical attention.</p>
-                    </div>
-                </div>
-
-                <div id="ROS" class="tab-content">
-                    <div class="settings-card">
-                        <div class="settings-header">
-                            <div class="settings-icon">
-                                <i class="fas fa-clipboard-list"></i>
-                            </div>
-                            <h3 class="settings-title">Review of Systems</h3>
-                        </div>
-                        <p>Systematic review of the patient's health status across different body systems.</p>
-                    </div>
-                </div>
-
-                <div id="Vision" class="tab-content">
-                    <div class="settings-card">
-                        <div class="settings-header">
-                            <div class="settings-icon">
-                                <i class="fas fa-eye"></i>
-                            </div>
-                            <h3 class="settings-title">Vision Assessment</h3>
-                        </div>
-                        <p>Evaluate and record patient's visual acuity and eye health status.</p>
-                    </div>
-                </div>
-
-                <div id="P/FH" class="tab-content">
-                    <div class="settings-card">
-                        <div class="settings-header">
-                            <div class="settings-icon">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <h3 class="settings-title">Past/Family History</h3>
-                        </div>
-                        <p>Review and document patient's medical history and relevant family medical background.</p>
-                    </div>
                 </div>
             </div>
 
             {% if role == 'Admin' %}
-            <div class="manage-users-container">
+                <div id="manage-users" class="tab-content">
+                    <div class="manage-users-section">
                 <h2>Manage Users</h2>
-                <a href="{{ url_for('create_personnel') }}" class="create-personnel-btn">
-                    <i class="fas fa-user-plus"></i> Create New Personnel
-                </a>
+                        <a href="{{ url_for('create_personnel') }}" class="create-personnel-btn">
+                            <i class="fas fa-user-plus"></i> Create New Personnel
+                        </a>
+                        <div class="users-table-container">
                 <table class="users-table">
                     <thead>
                         <tr>
-                            <th>Username</th>
-                            <th>Name</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                                        <th>USERNAME</th>
+                                        <th>NAME</th>
+                                        <th>ROLE</th>
+                                        <th>STATUS</th>
+                                        <th>ACTIONS</th>
                         </tr>
                     </thead>
                     <tbody>
+                                    {% if users %}
                         {% for user in users %}
                         <tr>
                             <td>{{ user.username }}</td>
                             <td>{{ user.name }}</td>
-                            <td><span class="role-badge role-{{ user.role }}">{{ user.role }}</span></td>
-                            <td>{{ user.status }}</td>
-                            <td>
-                                <button class="action-btn edit-btn" onclick="editUser({{ user.id }})">
-                                    <i class="fas fa-edit"></i> Edit
-                                </button>
-                                <button class="action-btn delete-btn" onclick="deleteUser({{ user.id }})">
-                                    <i class="fas fa-trash"></i> Delete
-                                </button>
+                                            <td><span class="role-badge role-{{ user.role }}">{{ user.role }}</span></td>
+                                            <td>{{ user.status }}</td>
+                                            <td>
+                                                <button class="action-btn edit-btn" onclick="editUser('{{ user.id }}')">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </button>
+                                                <button class="action-btn delete-btn" onclick="deleteUser('{{ user.id }}')">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
                             </td>
                         </tr>
                         {% endfor %}
+                                    {% endif %}
                     </tbody>
                 </table>
             </div>
-            {% endif %}
+                        </div>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 
     <script>
+        // Add currentUserId at the top of the script
+        const currentUserId = {{ current_user.id if current_user else 'null' }};
+
         function showTab(tabName) {
             // Hide all tab contents with animation
             document.querySelectorAll('.tab-content').forEach(tab => {
@@ -975,7 +1488,7 @@
             // Deactivate all tab buttons
             document.querySelectorAll('.tab-button').forEach(button => {
                 button.classList.remove('active');
-            });
+                });
             
             // Show selected tab content with animation
             const selectedTab = document.getElementById(tabName);
@@ -1102,6 +1615,230 @@
 
             return false;
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            let activeTab = null;
+
+            // Function to activate a tab
+            function activateTab(tabId) {
+                // If clicking the same tab that's already active, hide it
+                if (activeTab === tabId) {
+                    document.getElementById(tabId).classList.remove('active');
+                    document.querySelector(`[data-tab="${tabId}"]`).classList.remove('active');
+                    activeTab = null;
+                    return;
+                }
+
+                // Hide all tab contents
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                });
+
+                // Remove active class from all buttons
+                tabButtons.forEach(button => {
+                    button.classList.remove('active');
+                });
+
+                // Show the selected tab content
+                const selectedTab = document.getElementById(tabId);
+                if (selectedTab) {
+                    selectedTab.classList.add('active');
+                }
+
+                // Add active class to the clicked button
+                const selectedButton = document.querySelector(`[data-tab="${tabId}"]`);
+                if (selectedButton) {
+                    selectedButton.classList.add('active');
+                }
+
+                activeTab = tabId;
+            }
+
+            // Add click event listeners to all tab buttons
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabId = button.getAttribute('data-tab');
+                    activateTab(tabId);
+                });
+            });
+
+            // Functions for managing users
+            window.editUser = function(userId) {
+                window.location.href = `/admin/users/${userId}/edit`;
+            };
+
+            window.deleteUser = function(userId) {
+            if (confirm('Are you sure you want to delete this user?')) {
+                    fetch(`/admin/users/${userId}/delete`, {
+                    method: 'DELETE',
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                            location.reload();
+                    } else {
+                            alert(data.message);
+                        }
+                    });
+                }
+            };
+        });
+
+        // Initialize handoff functionality when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load users for the select dropdown
+            fetch('/get_users')
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById('to_user');
+                    select.innerHTML = '<option value="">Select User</option>'; // Clear existing options
+                    data.users.forEach(user => {
+                        if (user.id !== currentUserId) {  // Don't include current user
+                            const option = document.createElement('option');
+                            option.value = user.id;
+                            option.textContent = `${user.name} (${user.role})`;
+                            select.appendChild(option);
+                        }
+                    });
+                });
+
+            // Set up handoff filters
+            const typeFilter = document.getElementById('handoff-type');
+            const acknowledgedCheckbox = document.getElementById('show-acknowledged');
+            const archivedCheckbox = document.getElementById('show-archived');
+            
+            typeFilter.addEventListener('change', loadHandoffs);
+            acknowledgedCheckbox.addEventListener('change', loadHandoffs);
+            archivedCheckbox.addEventListener('change', loadHandoffs);
+
+            // Load initial handoffs
+            loadHandoffs();
+
+            // Set up form submission
+            const handoffForm = document.getElementById('handoff-form');
+            if (handoffForm) {
+                handoffForm.addEventListener('submit', submitHandoff);
+            }
+        });
+
+        function submitHandoff(event) {
+            event.preventDefault();
+            
+            const formData = {
+                to_user_id: document.getElementById('to_user').value,
+                patient_name: document.getElementById('patient_name').value,
+                care_instructions: document.getElementById('care_instructions').value
+            };
+
+            fetch('/create_handoff', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error creating handoff: ' + data.error);
+                } else {
+                    alert('Handoff created successfully');
+                    document.getElementById('handoff-form').reset();
+                    loadHandoffs();  // Refresh the handoff list
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                alert('Failed to create handoff. Please try again.');
+            });
+
+            return false;
+        }
+
+        function loadHandoffs() {
+            const type = document.getElementById('handoff-type').value;
+            const showAcknowledged = document.getElementById('show-acknowledged').checked;
+            const showArchived = document.getElementById('show-archived').checked;
+            
+            fetch(`/get_handoffs?type=${type}&include_acknowledged=${showAcknowledged}&show_archived=${showArchived}`)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('handoffs-container');
+                    container.innerHTML = '';
+                    
+                    data.handoffs.forEach(handoff => {
+                        const card = document.createElement('div');
+                        card.className = 'handoff-card';
+                        card.innerHTML = `
+                            <h4>Patient: ${handoff.patient_name}</h4>
+                            <p><strong>${handoff.from_user_name}</strong> → <strong>${handoff.to_user_name}</strong></p>
+                            <p>${handoff.care_instructions}</p>
+                            <p>
+                                <span class="handoff-status ${handoff.is_acknowledged ? 'status-acknowledged' : 'status-pending'}">
+                                    ${handoff.is_acknowledged ? 'Acknowledged' : 'Pending'}
+                                </span>
+                                ${handoff.is_archived ? '<span class="handoff-status status-archived">Archived</span>' : ''}
+                            </p>
+                            <div class="actions">
+                                ${!handoff.is_acknowledged && handoff.is_receiver ? `
+                                    <button onclick="acknowledgeHandoff(${handoff.id})" class="btn btn-primary">
+                                        Acknowledge
+                                    </button>
+                                ` : ''}
+                                ${handoff.is_acknowledged && handoff.is_receiver && !handoff.is_archived ? `
+                                    <button onclick="archiveHandoff(${handoff.id})" class="btn btn-secondary">
+                                        Archive
+                                    </button>
+                                ` : ''}
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    });
+
+                    if (data.handoffs.length === 0) {
+                        container.innerHTML = '<div class="no-handoffs">No handoffs found</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('handoffs-container').innerHTML = 
+                        '<div class="error">Failed to load handoffs. Please try again.</div>';
+                });
+        }
+
+        function acknowledgeHandoff(handoffId) {
+            fetch(`/acknowledge_handoff/${handoffId}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        loadHandoffs();
+                    } else {
+                        alert(data.message || 'Failed to acknowledge handoff');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error acknowledging handoff:', error);
+                    alert('Failed to acknowledge handoff. Please try again.');
+                });
+        }
+
+        function archiveHandoff(handoffId) {
+            fetch(`/archive_handoff/${handoffId}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadHandoffs();
+                    } else {
+                        alert(data.error || 'Failed to archive handoff');
+                    }
+                })
+                .catch(error => console.error('Error archiving handoff:', error));
+        }
+
+        // Add event listener for show-archived checkbox
+        document.getElementById('show-archived').addEventListener('change', loadHandoffs);
     </script>
 </body>
 </html> 

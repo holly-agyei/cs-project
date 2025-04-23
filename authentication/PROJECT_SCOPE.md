@@ -1,102 +1,73 @@
-# Eye Clinic Management System - Project Scope Statement
+# Eye Clinic Management System
 
-## 1. Project Overview
-The Eye Clinic Management System is a web-based application focused on user authentication and management. It provides secure role-based access control for different types of users in an eye clinic setting, with robust user management and authentication features.
+## Project Scope Statement
+This document defines the boundaries and deliverables for version 1.0 of the Eye Clinic Management System, focusing exclusively on authentication and user management features.
 
-## 2. Project Objectives
-- Implement secure user authentication
-- Provide role-based access control
-- Enable efficient user management
-- Ensure secure password management
-- Maintain audit trail of user activities
+**Project Overview**  
+A secure, role‑based web application that provides authentication, user management, and password security workflows for clinic staff and patients.
 
-## 3. Implemented Features
+**Objectives**  
+- Deliver a dependable Login/Logout system with strong password policies.  
+- Enforce Role‑Based Access Control for Admin, Doctor, Nurse, Receptionist, and Patient.  
+- Enable administrators to manage user accounts (create, modify, delete) with email notifications.  
+- Provide a safe and user‑friendly password reset process.
 
-### 3.1 Authentication & Security
-- Multi-role user authentication (Admin, Doctor, Nurse, Receptionist, Pharmacist)
-- Secure login system
-- Password reset functionality with email verification
-- Session management
-- Role-based access control
-- Password security requirements enforcement
+**In‑Scope Features**  
+1. **Authentication System**  
+   - Login / Logout functionality  
+   - Role‑Based Access Control (RBAC)  
+   - Password complexity rules and expiration policies  
+2. **User Management**  
+   - Admin Dashboard for creating, editing, deleting users and role assignment  
+   - Email notifications for account creation and changes  
+3. **Password Reset**  
+   - Secure, token‑based reset flow with email verification  
+   - Enforced password strength requirements  
+4. **Security Features**  
+   - Password hashing (bcrypt)  
+   - Session management with secure cookies and timeouts  
+   - CSRF protection on all forms
 
-### 3.2 Admin Dashboard
-- User management (create, edit, delete users)
-- Role assignment and permissions
-- View all users
-- Modify user status
-- User activity monitoring
+**Out‑of‑Scope Features**  
+- Appointment scheduling and calendar integration  
+- Patient record creation, editing, or history tracking  
+- Prescription creation and pharmacy workflows  
+- Billing, payments, and insurance handling  
+- Mobile‑specific interfaces (web only)
 
-### 3.3 User Management
-- Create new personnel
-- Edit existing user details
-- Delete users
-- Update user roles
-- Reset user passwords
+**Deliverables**  
+- Fully functional Authentication & User Management module  
+- Automated tests covering core authentication and user‑management flows  
+- Deployment pipeline configuration (Render setup)  
+- User guide for Admins and end users  
+- Technical documentation: architecture overview and API reference
 
-### 3.4 Email Notifications
-- Password reset links
-- Account creation confirmations
-- Security alerts
+**Constraints & Assumptions**  
+- Built with Flask and SQLAlchemy (SQLite for PoC, PostgreSQL in production)  
+- Hosted on Render, environment configuration via `.env`  
+- Email delivered via Gmail SMTP with App Passwords  
+- Target user base ≤50 concurrent sessions  
+- Supported browsers: latest Chrome, Firefox, Edge, Safari
 
-## 4. Out-of-Scope Features
-- Patient management
-- Appointment scheduling
-- Medical records
-- Prescription management
-- Inventory management
-- Financial management
-- Reporting and analytics
+**Timeline (High‑Level)**  
+| Phase                            | Duration |
+|----------------------------------|----------|
+| Requirements & Design            | 1 week   |
+| Authentication & RBAC            | 1 week   |
+| Admin User Management            | 1 week   |
+| Password Reset & Security        | 1 week   |
+| Testing, Documentation & Deployment | 1 week |
 
-## 5. Deliverables
+---
 
-### 5.1 Software
-- Authentication system
-- User management interface
-- Admin dashboard
-- Password reset functionality
-- Source code repository
+## Getting Started
 
-### 5.2 Documentation
-- System setup guide
-- User management documentation
-- Security documentation
-- API documentation
+### Prerequisites
+- Python 3.8+  
+- PostgreSQL or SQLite (for development)
 
-## 6. Technical Details
-
-### 6.1 Technology Stack
-- Backend: Python/Flask
-- Frontend: HTML5, CSS3, JavaScript
-- Database: SQLite
-- Hosting: Render
-- Email Integration: SMTP
-
-### 6.2 Security Features
-- Password hashing
-- Session management
-- CSRF protection
-- Secure password reset
-- Role-based permissions
-
-## 7. Project Timeline
-
-### Week 1-2: Core Authentication
-- User authentication system
-- Login/logout functionality
-- Session management
-- Password security
-
-### Week 3-4: User Management
-- Admin dashboard
-- User CRUD operations
-- Role management
-- Permission system
-
-### Week 5-6: Password Reset & Email
-- Password reset functionality
-- Email integration
-- Security improvements
-- Testing and debugging
-
-This scope statement reflects the actual implemented features of the Eye Clinic Management System's authentication and user management module. 
+### Installation
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/yourusername/eye-clinic-auth.git
+   cd eye-clinic-auth/authentication
