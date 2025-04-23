@@ -1,1 +1,1 @@
-web: gunicorn app:app --config gunicorn_config.py 
+web: cd authentication && gunicorn app:app --config gunicorn_config.py 
