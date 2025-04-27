@@ -1,14 +1,15 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from functools import wraps
 import os
-from datetime import datetime, timedelta
-from models import db, User, Patient, HandOff
+from datetime import datetime, timedelta, timezone
+from models import db, User, Patient, PatientView, HandOff
 from flask_migrate import Migrate
 from flask_mail import Mail, Message
 import secrets
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from sqlalchemy import or_
+import pytz
 
 load_dotenv()  # Load environment variables from .env file
 
@@ -48,7 +49,7 @@ TAB_PERMISSIONS = {
     "Exam": ["Doctor", "Admin"],
     "Photos/Videos": ["Doctor", "Admin"],
     "E-prescribe": ["Doctor", "Pharmacist", "Admin"],
-    "Hand Off": ["Doctor", "Nurse", "Admin"],
+    "Hand Off": ["Doctor", "Nurse", "Admin", "Intern", "Receptionist", "Pharmacist"],  # All roles have access
     "Manage Users": ["Admin"],
     "Settings": ["Doctor", "Nurse", "Admin", "Intern", "Receptionist", "Pharmacist"]  # Available to all roles
 }
@@ -220,6 +221,16 @@ def select_patient(patient_id):
     patient = Patient.query.get(patient_id)
     if patient:
         session['selected_patient_id'] = patient_id
+        
+        # Create a new patient view record
+        current_user = User.query.filter_by(username=session['username']).first()
+        patient_view = PatientView(
+            patient_id=patient_id,
+            user_id=current_user.id
+        )
+        db.session.add(patient_view)
+        db.session.commit()
+        
         return jsonify({'status': 'success'})
     return jsonify({'status': 'error', 'message': 'Patient not found'}), 404
 
@@ -546,14 +557,10 @@ def validate_password(password):
 @app.route('/handoff', methods=['POST'])
 @login_required
 def handoff():
-    # Check if user has permission to perform handoffs
-    if session['role'] not in TAB_PERMISSIONS['Hand Off']:
-        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
-
     data = request.get_json()
     
     # Validate required fields
-    required_fields = ['to_user_id', 'patient_status', 'care_instructions', 'pending_tasks']
+    required_fields = ['to_user_id', 'patient_name', 'care_instructions']
     if not all(field in data and data[field] for field in required_fields):
         return jsonify({'status': 'error', 'message': 'Missing required fields'}), 400
     
@@ -562,22 +569,16 @@ def handoff():
     if not target_user or target_user.username == session['username']:
         return jsonify({'status': 'error', 'message': 'Invalid target user'}), 400
     
-    # Get the current patient
-    current_patient = Patient.query.get(session.get('selected_patient_id'))
-    if not current_patient:
-        return jsonify({'status': 'error', 'message': 'No patient selected'}), 400
-    
     try:
         # Create new handoff record
         handoff = HandOff(
             from_user_id=User.query.filter_by(username=session['username']).first().id,
             to_user_id=target_user.id,
-            patient_id=current_patient.id,
-            patient_status=data['patient_status'],
+            patient_name=data['patient_name'],
             care_instructions=data['care_instructions'],
             medications=data.get('medications', ''),
-            pending_tasks=data['pending_tasks'],
-            alerts=','.join(data.get('alerts', []))
+            pending_tasks=data.get('pending_tasks', ''),
+            critical_alerts=','.join(data.get('alerts', []))
         )
         
         db.session.add(handoff)
@@ -842,6 +843,20 @@ def init_db():
             db.session.add(patient)
         
         db.session.commit()
+
+# Add datetime filter
+@app.template_filter('datetime')
+def format_datetime(value):
+    if isinstance(value, str):
+        value = datetime.fromisoformat(value.replace('Z', '+00:00'))
+    
+    # Convert to Central Time
+    central = pytz.timezone('America/Chicago')
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+    central_time = value.astimezone(central)
+    
+    return central_time.strftime('%B %d, %Y at %I:%M %p CT')
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8084))

@@ -1,4 +1,4 @@
-from app import app, db, User, Patient
+from app import app, db, User, Patient, PatientView
 from datetime import datetime
 
 with app.app_context():
@@ -39,6 +39,8 @@ with app.app_context():
         )
         user.set_password(user_data["password"])
         db.session.add(user)
+    
+    db.session.commit()
 
     # Create initial patients
     initial_patients = [
@@ -89,4 +91,28 @@ with app.app_context():
         db.session.add(patient)
     
     db.session.commit()
-    print("Database initialized successfully with default users and patients!") 
+    
+    # Add some initial patient views
+    admin = User.query.filter_by(username="admin1").first()
+    nurse = User.query.filter_by(username="nurse_amy").first()
+    doctor = User.query.filter_by(username="dr_smith").first()
+    
+    initial_views = [
+        {
+            "patient_id": "EC-2025-001",
+            "user_id": doctor.id,
+            "viewed_at": datetime(2025, 4, 15, 10, 30)
+        },
+        {
+            "patient_id": "EC-2025-002",
+            "user_id": nurse.id,
+            "viewed_at": datetime(2025, 4, 13, 14, 15)
+        }
+    ]
+    
+    for view_data in initial_views:
+        view = PatientView(**view_data)
+        db.session.add(view)
+    
+    db.session.commit()
+    print("Database initialized successfully with default users, patients, and patient views!") 

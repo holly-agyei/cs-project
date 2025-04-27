@@ -184,6 +184,39 @@
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
         }
         
+        .view-history {
+            margin-top: 1rem;
+        }
+        
+        .view-list {
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+        
+        .view-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .view-list::-webkit-scrollbar-track {
+            background: var(--light-color);
+            border-radius: 3px;
+        }
+        
+        .view-list::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 3px;
+        }
+        
+        .view-item {
+            padding: 0.5rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        .view-item:hover {
+            transform: translateX(5px);
+        }
+        
         .welcome-card {
             background: white;
             padding: 2rem;
@@ -657,7 +690,7 @@
         }
         
         .delete-btn {
-            background: linear-gradient(135deg, var(--danger-color), #c82333);
+            background: var(--danger-color);
             color: white;
         }
         
@@ -1184,6 +1217,21 @@
                     <div class="info-label">Diagnosis</div>
                     <div class="info-value">{{ patient_data.diagnosis }}</div>
                 </div>
+                {% if patient_data.views %}
+                <div class="view-history">
+                    <h4>View History</h4>
+                    <div class="view-list">
+                        {% for view in patient_data.views %}
+                        <div class="view-item">
+                            <span class="text-primary">{{ view.user_name }}</span>
+                            <span class="text-muted">({{ view.user_role }})</span>
+                            <br>
+                            <small class="text-muted">{{ view.viewed_at }}</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
                 {% else %}
                 <div class="info-group">
                     <div class="info-value">No patient selected</div>
@@ -1270,156 +1318,171 @@
 
             <div class="tabs-container">
                 <div class="tab-buttons">
-                    <button class="tab-button" data-tab="hpi">
-                        <i class="fas fa-file-medical"></i> HPI
+                    {% for tab, has_access in tabs.items() %}
+                        {% if has_access %}
+                            <button class="tab-button" data-tab="{{ tab|lower|replace('/', '')|replace(' ', '-') }}">
+                                {% if tab == 'HPI' %}
+                                    <i class="fas fa-file-medical"></i>
+                                {% elif tab == 'CC' %}
+                                    <i class="fas fa-comment-medical"></i>
+                                {% elif tab == 'ROS' %}
+                                    <i class="fas fa-clipboard-list"></i>
+                                {% elif tab == 'PMH' %}
+                                    <i class="fas fa-history"></i>
+                                {% elif tab == 'P/FH' %}
+                                    <i class="fas fa-users"></i>
+                                {% elif tab == 'Vision' %}
+                                    <i class="fas fa-eye"></i>
+                                {% elif tab == 'Exam' %}
+                                    <i class="fas fa-stethoscope"></i>
+                                {% elif tab == 'Photos/Videos' %}
+                                    <i class="fas fa-camera"></i>
+                                {% elif tab == 'E-prescribe' %}
+                                    <i class="fas fa-prescription"></i>
+                                {% elif tab == 'Hand Off' %}
+                                    <i class="fas fa-exchange-alt"></i>
+                                {% elif tab == 'Manage Users' %}
+                                    <i class="fas fa-users-cog"></i>
+                                {% elif tab == 'Settings' %}
+                                    <i class="fas fa-cog"></i>
+                                {% endif %}
+                                {{ tab }}
                             </button>
-                    <button class="tab-button" data-tab="cc">
-                        <i class="fas fa-comment-medical"></i> CC
-                    </button>
-                    <button class="tab-button" data-tab="ros">
-                        <i class="fas fa-clipboard-list"></i> ROS
-                    </button>
-                    <button class="tab-button" data-tab="pmh">
-                        <i class="fas fa-history"></i> PMH
-                    </button>
-                    <button class="tab-button" data-tab="pfh">
-                        <i class="fas fa-users"></i> P/FH
-                    </button>
-                    <button class="tab-button" data-tab="vision">
-                        <i class="fas fa-eye"></i> Vision
-                    </button>
-                    <button class="tab-button" data-tab="exam">
-                        <i class="fas fa-stethoscope"></i> Exam
-                    </button>
-                    <button class="tab-button" data-tab="photos">
-                        <i class="fas fa-camera"></i> Photos/Videos
-                    </button>
-                    <button class="tab-button" data-tab="eprescribe">
-                        <i class="fas fa-prescription"></i> E-prescribe
-                    </button>
-                    <button class="tab-button" data-tab="handoff">
-                        <i class="fas fa-exchange-alt"></i> Hand Off
-                    </button>
-                    {% if role == 'Admin' %}
-                    <button class="tab-button" data-tab="manage-users">
-                        <i class="fas fa-users-cog"></i> Manage Users
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <!-- Tab Content -->
+                <div class="tab-content-container">
+                    {% for tab, has_access in tabs.items() %}
+                        {% if has_access %}
+                            <div id="{{ tab|lower|replace('/', '')|replace(' ', '-') }}" class="tab-content">
+                                <div class="placeholder-content">
+                                    {% if tab == 'HPI' %}
+                                        <i class="fas fa-file-medical placeholder-icon"></i>
+                                        <h2 class="placeholder-text">History of Present Illness</h2>
+                                        <p class="placeholder-subtext">Record and view patient's current medical condition</p>
+                                    {% elif tab == 'CC' %}
+                                        <i class="fas fa-comment-medical placeholder-icon"></i>
+                                        <h2 class="placeholder-text">Chief Complaint</h2>
+                                        <p class="placeholder-subtext">Document patient's main health concerns</p>
+                                    {% elif tab == 'ROS' %}
+                                        <i class="fas fa-clipboard-list placeholder-icon"></i>
+                                        <h2 class="placeholder-text">Review of Systems</h2>
+                                        <p class="placeholder-subtext">Systematic review of patient's health status</p>
+                                    {% elif tab == 'PMH' %}
+                                        <i class="fas fa-history placeholder-icon"></i>
+                                        <h2 class="placeholder-text">Past Medical History</h2>
+                                        <p class="placeholder-subtext">View and update patient's medical history</p>
+                                    {% elif tab == 'P/FH' %}
+                                        <i class="fas fa-users placeholder-icon"></i>
+                                        <h2 class="placeholder-text">Personal/Family History</h2>
+                                        <p class="placeholder-subtext">Record personal and family medical history</p>
+                                    {% elif tab == 'Vision' %}
+                                        <i class="fas fa-eye placeholder-icon"></i>
+                                        <h2 class="placeholder-text">Vision Assessment</h2>
+                                        <p class="placeholder-subtext">Conduct and record vision tests</p>
+                                    {% elif tab == 'Exam' %}
+                                        <i class="fas fa-stethoscope placeholder-icon"></i>
+                                        <h2 class="placeholder-text">Eye Examination</h2>
+                                        <p class="placeholder-subtext">Perform and document eye examinations</p>
+                                    {% elif tab == 'Photos/Videos' %}
+                                        <i class="fas fa-camera placeholder-icon"></i>
+                                        <h2 class="placeholder-text">Medical Imaging</h2>
+                                        <p class="placeholder-subtext">Upload and view patient's eye images and videos</p>
+                                    {% elif tab == 'E-prescribe' %}
+                                        <i class="fas fa-prescription placeholder-icon"></i>
+                                        <h2 class="placeholder-text">E-Prescribe</h2>
+                                        <p class="placeholder-subtext">Create and manage electronic prescriptions</p>
+                                    {% elif tab == 'Hand Off' %}
+                                        <div class="handoff-container">
+                                            <div class="create-handoff-section">
+                                                <h2>Create New Handoff</h2>
+                                                <form id="handoff-form" class="handoff-form">
+                                                    <div class="form-group">
+                                                        <label for="to_user">Select Recipient:</label>
+                                                        <select id="to_user" name="to_user" required>
+                                                            <option value="">Select User</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="patient_name">Patient Name:</label>
+                                                        <input type="text" id="patient_name" name="patient_name" required>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="care_instructions">Care Instructions:</label>
+                                                        <textarea id="care_instructions" name="care_instructions" required></textarea>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="medications">Medications (Optional):</label>
+                                                        <textarea id="medications" name="medications"></textarea>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="pending_tasks">Pending Tasks (Optional):</label>
+                                                        <textarea id="pending_tasks" name="pending_tasks"></textarea>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Critical Alerts (Optional):</label>
+                                                        <div class="alert-checkboxes">
+                                                            <label class="alert-item">
+                                                                <input type="checkbox" name="alerts" value="Allergy Alert">
+                                                                Allergy Alert
+                                                            </label>
+                                                            <label class="alert-item">
+                                                                <input type="checkbox" name="alerts" value="Medication Alert">
+                                                                Medication Alert
+                                                            </label>
+                                                            <label class="alert-item">
+                                                                <input type="checkbox" name="alerts" value="Fall Risk">
+                                                                Fall Risk
+                                                            </label>
+                                                            <label class="alert-item">
+                                                                <input type="checkbox" name="alerts" value="Infection Control">
+                                                                Infection Control
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <button type="submit" class="btn-handoff">
+                                                        <i class="fas fa-exchange-alt"></i>
+                                                        Create Handoff
                         </button>
+                                                </form>
+                                            </div>
+                                            <div class="handoff-list-section">
+                                                <h2>Handoff History</h2>
+                                                <div class="handoff-filters">
+                                                    <select id="handoff-type">
+                                                        <option value="all">All Handoffs</option>
+                                                        <option value="sent">Sent</option>
+                                                        <option value="received">Received</option>
+                                                    </select>
+                                                    <label>
+                                                        <input type="checkbox" id="show-acknowledged">
+                                                        Show Acknowledged
+                                                    </label>
+                                                    <label>
+                                                        <input type="checkbox" id="show-archived">
+                                                        Show Archived
+                                                    </label>
+                                                </div>
+                                                <div id="handoffs-container" class="handoff-list">
+                                                    <!-- Handoffs will be loaded here -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% elif tab == 'Manage Users' %}
+                                        <i class="fas fa-users-cog placeholder-icon"></i>
+                                        <h2 class="placeholder-text">User Management</h2>
+                                        <p class="placeholder-subtext">Manage system users and their roles</p>
+                                    {% elif tab == 'Settings' %}
+                                        <i class="fas fa-cog placeholder-icon"></i>
+                                        <h2 class="placeholder-text">Settings</h2>
+                                        <p class="placeholder-subtext">Configure your account and preferences</p>
                     {% endif %}
-                </div>
-
-                <!-- Tab Content Sections -->
-                <div id="hpi" class="tab-content">
-                    <div class="placeholder-content">
-                        <i class="fas fa-file-medical placeholder-icon"></i>
-                        <h2 class="placeholder-text">History of Present Illness</h2>
-                        <p class="placeholder-subtext">Record and view patient's current illness history</p>
-                    </div>
-                </div>
-
-                <div id="cc" class="tab-content">
-                    <div class="placeholder-content">
-                        <i class="fas fa-comment-medical placeholder-icon"></i>
-                        <h2 class="placeholder-text">Chief Complaint</h2>
-                        <p class="placeholder-subtext">Document patient's main symptoms and concerns</p>
-                    </div>
-                </div>
-
-                <div id="ros" class="tab-content">
-                    <div class="placeholder-content">
-                        <i class="fas fa-clipboard-list placeholder-icon"></i>
-                        <h2 class="placeholder-text">Review of Systems</h2>
-                        <p class="placeholder-subtext">Systematic review of patient's health systems</p>
-                    </div>
-                </div>
-
-                <div id="pmh" class="tab-content">
-                    <div class="placeholder-content">
-                        <i class="fas fa-history placeholder-icon"></i>
-                        <h2 class="placeholder-text">Past Medical History</h2>
-                        <p class="placeholder-subtext">View and update patient's medical history</p>
-                    </div>
-                </div>
-
-                <div id="pfh" class="tab-content">
-                    <div class="placeholder-content">
-                        <i class="fas fa-users placeholder-icon"></i>
-                        <h2 class="placeholder-text">Personal/Family History</h2>
-                        <p class="placeholder-subtext">Record family medical history and personal health information</p>
-                    </div>
-                </div>
-
-                <div id="vision" class="tab-content">
-                    <div class="placeholder-content">
-                        <i class="fas fa-eye placeholder-icon"></i>
-                        <h2 class="placeholder-text">Vision Assessment</h2>
-                        <p class="placeholder-subtext">Record vision test results and measurements</p>
-                    </div>
-                </div>
-
-                <div id="exam" class="tab-content">
-                    <div class="placeholder-content">
-                        <i class="fas fa-stethoscope placeholder-icon"></i>
-                        <h2 class="placeholder-text">Eye Examination</h2>
-                        <p class="placeholder-subtext">Document comprehensive eye examination findings</p>
-                    </div>
-                </div>
-
-                <div id="photos" class="tab-content">
-                    <div class="placeholder-content">
-                        <i class="fas fa-camera placeholder-icon"></i>
-                        <h2 class="placeholder-text">Photos & Videos</h2>
-                        <p class="placeholder-subtext">Upload and view patient's eye images and videos</p>
-                    </div>
-                </div>
-
-                <div id="eprescribe" class="tab-content">
-                    <div class="placeholder-content">
-                        <i class="fas fa-prescription placeholder-icon"></i>
-                        <h2 class="placeholder-text">E-Prescribe</h2>
-                        <p class="placeholder-subtext">Create and manage electronic prescriptions</p>
-                    </div>
-                </div>
-
-                <div id="handoff" class="tab-content">
-                    <div class="handoff-container">
-                        <div class="handoff-form">
-                            <h3>Create New Handoff</h3>
-                            <form id="handoff-form">
-                                <div class="form-group">
-                                    <label for="to_user">To User:</label>
-                                    <select id="to_user" name="to_user" required>
-                                        <option value="">Select User</option>
-                                    </select>
                                 </div>
-                                <div class="form-group">
-                                    <label for="patient_name">Patient Name:</label>
-                                    <input type="text" id="patient_name" name="patient_name" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="care_instructions">Care Instructions:</label>
-                                    <textarea id="care_instructions" name="care_instructions" required></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Create Handoff</button>
-                            </form>
-                        </div>
-                        
-                        <div class="handoff-list">
-                            <h3>Handoffs</h3>
-                            <div class="filter-controls">
-                                <select id="handoff-type">
-                                    <option value="all">All Handoffs</option>
-                                    <option value="sent">Sent</option>
-                                    <option value="received">Received</option>
-                                </select>
-                                <label>
-                                    <input type="checkbox" id="show-acknowledged"> Show Acknowledged
-                                </label>
-                                <label>
-                                    <input type="checkbox" id="show-archived"> Show Archived
-                                </label>
                             </div>
-                            <div id="handoffs-container"></div>
-                        </div>
+                        {% endif %}
+                    {% endfor %}
                 </div>
             </div>
 

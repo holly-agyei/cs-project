@@ -56,8 +56,14 @@ class Patient(db.Model):
     diagnosis = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Add relationship to PatientView
+    views = db.relationship('PatientView', backref='patient', lazy='dynamic', order_by='PatientView.viewed_at.desc()')
 
     def to_dict(self):
+        # Get all views, ordered by most recent first
+        all_views = [view.to_dict() for view in self.views.all()]
+        
         return {
             'id': self.id,
             'name': self.name,
@@ -66,7 +72,28 @@ class Patient(db.Model):
             'appointment_date': self.appointment_date.isoformat() if self.appointment_date else None,
             'diagnosis': self.diagnosis,
             'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'views': all_views,
+            'last_view': all_views[0] if all_views else None
+        }
+
+class PatientView(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.String(20), db.ForeignKey('patient.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    viewed_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Add relationship to User
+    user = db.relationship('User', backref='patient_views')
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'patient_id': self.patient_id,
+            'user_id': self.user_id,
+            'user_name': self.user.name,
+            'user_role': self.user.role,
+            'viewed_at': self.viewed_at.isoformat() if self.viewed_at else None
         }
 
 class HandOff(db.Model):
