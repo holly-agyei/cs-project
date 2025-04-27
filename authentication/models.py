@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash, check_password_hash
+import pytz
 
 db = SQLAlchemy()
 
@@ -81,19 +82,23 @@ class PatientView(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.String(20), db.ForeignKey('patient.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    viewed_at = db.Column(db.DateTime, default=datetime.utcnow)
+    viewed_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     
     # Add relationship to User
     user = db.relationship('User', backref='patient_views')
     
     def to_dict(self):
+        # Convert UTC to Central Time
+        central = pytz.timezone('America/Chicago')
+        viewed_at_ct = self.viewed_at.replace(tzinfo=timezone.utc).astimezone(central)
+        
         return {
             'id': self.id,
             'patient_id': self.patient_id,
             'user_id': self.user_id,
             'user_name': self.user.name,
             'user_role': self.user.role,
-            'viewed_at': self.viewed_at.isoformat() if self.viewed_at else None
+            'viewed_at': viewed_at_ct.strftime('%B %d, %Y at %I:%M %p CT')
         }
 
 class HandOff(db.Model):
